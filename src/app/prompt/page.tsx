@@ -11,7 +11,8 @@ export default function Prompt() {
 
   const [response, setReponse] = useState<string>("")
 
-  const onClickPrompt = async () => {
+  const onClickPrompt = async (e: MouseEvent) => {
+    e.preventDefault()
     console.log("Sending message to replicate")
     const res = message ? await prompt(message) : ""
     setReponse(res)
@@ -35,7 +36,7 @@ export default function Prompt() {
           <button onClick={onClickPrompt}>Send</button>
         </form>
       </div>
-      <div>{JSON.stringify(response)}</div>
+      <div>{response}</div>
     </div>
   )
 }

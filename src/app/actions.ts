@@ -85,11 +85,8 @@ export default async function prompt(message: string): Promise<string> {
     min_new_tokens: -1,
     repetition_penalty: 1,
   }
-  let res = ""
-  for await (const event of replicate.stream("meta/llama-2-7b-chat", {
+  const res: string[] = (await replicate.run("meta/llama-2-7b-chat", {
     input,
-  })) {
-    res += event.toString()
-  }
-  return res
+  })) as string[]
+  return res.join("")
 }
