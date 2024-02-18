@@ -17,7 +17,6 @@ function superComplicatedNormalization(output: string): string | null {
   const [res1, res2, res3] = s
     .slice(Math.max(s.length - 3, 0))
     .filter((n, i) => {
-      console.log(n)
       const l = n.toLowerCase().replace(/\W/g, "")
       return (
         l !== "output" && (i !== 0 || n.charAt(0) === n.charAt(0).toUpperCase())
