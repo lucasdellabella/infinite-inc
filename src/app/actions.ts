@@ -51,12 +51,18 @@ export async function prompt(name1: string, name2: string): Promise<string> {
   })) as string[]
   const output = res?.join("")
 
-  const [res_name1] = output?.split("|").slice(Math.max(output.length - 1, 0))
+  const s = output?.split("|")
+  const [res_name1] = s?.slice(Math.max(s.length - 1, 0))
+
+  const [n1, n2, r1] =
+    [name1, name2, res_name1]
+      .map((n) => n.replaceAll(" ", "_"))
+      .map((n) => n.replace(/\W/g, "")) || []
 
   if (supabase) {
     const { error } = await supabase
       ?.from("combos")
-      .insert({ name1, name2, res_name1 })
+      .insert({ name1: n1, name2: n2, res_name1: r1 })
     if (error) {
       console.log("insert failed", error)
     }

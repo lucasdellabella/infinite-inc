@@ -189,4 +189,7 @@ Try this one
 Man|Tree|?
 Sure! Here is a recipe for a Man: Input: Water Output: Tree
 
-No, the correct answer in Man|Tree|Wood`
+No, the correct answer in Man|Tree|Wood
+
+Don't comment on the correction just provide the right answer in the correct format:
+X|Y|Z`
