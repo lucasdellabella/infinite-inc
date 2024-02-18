@@ -4,7 +4,18 @@ import { cookies } from "next/headers"
 import { createClient } from "@/util/supabase/server"
 import Replicate from "replicate"
 
-import { gamePrompt } from "@/lib/serverPrompts"
+import { gamePrompt, infiniteCraftPrompt } from "@/lib/serverPrompts"
+
+const defaultInputs = {
+  debug: false,
+  top_k: -1,
+  top_p: 1,
+  temperature: 0.75,
+  system_prompt: gamePrompt,
+  max_new_tokens: 800,
+  min_new_tokens: -1,
+  repetition_penalty: 1,
+}
 
 const supabase = createClient(cookies())
 const replicate = new Replicate({
@@ -32,19 +43,28 @@ function superComplicatedNormalization(output: string): string | null {
     : null
 }
 
-export default async function prompt(message: string): Promise<string> {
-  const input = {
-    debug: false,
-    top_k: -1,
-    top_p: 1,
-    prompt: message,
-    temperature: 0.75,
-    system_prompt: gamePrompt,
-    max_new_tokens: 800,
-    min_new_tokens: -1,
-    repetition_penalty: 1,
-  }
+export async function prompt(name1: string, name2: string): Promise<string> {
+  const prompt = [name1, name2, "?"].join("|")
+  const input = { ...defaultInputs, system_prompt: infiniteCraftPrompt, prompt }
+  const res: string[] = (await replicate.run("meta/llama-2-7b-chat", {
+    input,
+  })) as string[]
+  const output = res?.join("")
 
+  const [res_name1] = output?.split("|").slice(Math.max(output.length - 1, 0))
+
+  if (supabase) {
+    const { error } = await supabase
+      ?.from("combos")
+      .insert({ name1, name2, res_name1 })
+    if (error) {
+      console.log("insert failed", error)
+    }
+  }
+  return output
+}
+
+export async function prompt1(message: string): Promise<string> {
   const [subject, objects] = message?.split(" combines ") || []
 
   const ands = objects.split(" and ")
@@ -53,6 +73,8 @@ export default async function prompt(message: string): Promise<string> {
     [subject, ...ands]
       ?.map((n) => n.replaceAll(" ", "_"))
       .map((n) => n.replace(/\W/g, "")) || []
+
+  const input = { ...defaultInputs, prompt: message }
 
   const res: string[] = (await replicate.run("meta/llama-2-7b-chat", {
     input,

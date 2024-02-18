@@ -67,3 +67,126 @@ Input: {Party Alignment} combines {Obama} and {California}
 Bad output: Democratic Support
 Good output: null
 `
+
+export const infiniteCraftPrompt = `
+We are creating new recipes for a crafting game on the fly. Follow the pattern and use your creativity to complete the recipes. 
+
+The answer should only be one line in the format Input1|Input2|Result. Absolutely under no circumstances break this format in your answer.
+
+Make sure the Result is a terse noun no more than three words long.
+
+
+Here are some examples
+Water|Plant|Swamp
+Fire|Steam|Engine
+Wind|Volcano|Eruption
+Earth|Dust|Planet
+Tornado|Tornado|Hurricane
+Tornado|Dust|Dust Storm
+Water|Ash|Puddle
+Water|Lily|Pond
+Fire|Ash|Phoenix
+Wind|Dandelion|Seed
+Steam|Planet|Steampunk
+Wave|Tree|Surfboard
+Plant|Stone|Fossil
+Plant|Avalanche|Snowman
+Volcano|Tsunami|Earthquake
+Volcano|Mountain Range|Yellowstone
+Dust|Engine|Vacuum
+Dust|Ash|Cinder
+Mountain|Sand|Pyramid
+Swamp|Incense|Mosquito
+Dandelion|Fjord|Viking
+Sandstorm|Incense|Genie
+Water|Allergy|Sneeze
+Water|Lotus|Water Lily
+Fire|Ship|Cannon
+Fire|Smog|Pollution
+Fire|Salt|Sodium
+Steam|Oasis|Sauna
+Steam|Thunder|Thunderstorm
+Lake|Meade|Beer
+Acid Rain|Yellowstone|Supervolcano
+Aeolus|Dinosaur|Pterodactyl
+Acid|Berserker|Hulk
+Acid|Chemtrail|Chemical
+Acid|Duck|Quack
+Acid|Sauna|Sweat
+Acid|Sodium Acetate|Sodium Acetate Trihydrate
+Acid Rain|Cannabis|Bong Water
+Hole|Human|Grave
+Hole|Marijuana|Pot
+Devil|Gold|Rich
+SpongeBob|Weed|Spongeweed
+Glass|Lagoon|Aquarium
+Splash|Superhero|Aquaman
+Quagmire|Stone|Squirrel
+Mountain Dew|Sour Tea|Mountain Tea
+Dandelion Patch|Surfing|Dandelion Surfer
+Prince|Swiss Cheese|Swiss Prince
+Pencil|Spongebob|DoodleBob
+Ship|Wet Paper|Paper Boat
+Acid Warfare|Brick|TNT
+Dinosaur|Wedding|Bride
+Fighter|Mountain Dew|Mountain Man
+Frankenfish|Pineapple|Pineapplefish
+Mutant|Wheel|Monster Truck
+Eclipse|Saturn|Cassini
+Brick|Honey|Honeycomb
+Firefly|Road Runner|Fire Road
+Thunderstorm|Troy|Troyan Horse
+Engine|Salt|Saltwater
+Moby Dick|Piranha|Whale Shark
+Epiphany|Thanos|Infinity Gauntlet
+Iceberg|Telescope|Ice Cube
+Planet|Sour Soup|Pluto
+Fireball|Statue Of Liberty|Liberty Bell
+Green Tea|SpongeBob SquarePants|Sponge Tea
+Chemist|Farm|Alchemist
+Lagoon|Pollution|Dead Fish
+Candle|Farmer|Wax
+Burning Bush|Window|Fireplace
+Skeleton|Sour Sub|Skull
+Crack|Gnome|Gnomercy
+Fog|Prayer|Priest
+Squirrel|Trade Winds|Nut
+Commandments|Ice Age|Ice Commandments
+Cinder|Iron|Steel
+Blizzard|Health|Frostbite
+Troll|Werewolf|Were-Troll
+Evil Queen|Fire|Evil Witch
+Galileo|Statue|Pendulum
+Autumn|Sulfur|Fall
+Rover|Scent|Dog
+Jupiter|Photographer|Astrologist
+Poison Ivy|Titanium|Titanium Dioxide
+Hula Hoop|Sneeze|Hula Sneeze
+Parting|Steamroller|Road
+Sodium Acetate Trihydrate|Titanium|Sodium Titanate
+Dandelion Patch|Sour Ale|Dandelion Wine
+Air Force One|Hail|Air Force None
+Soggy|Toxic Fairy|Swamp Fairy
+Ammonia|Venom|Cleaner
+Pirate|Sky|Pirate Ship
+Crab|Wine|Crabs
+Nymph|Odyssey|Calypso
+Dust Bowl|Table|Dinner
+Flat Earth|Train|Flat Train
+Mutant Fish|Road Runner|Mutant Road Runner
+God|Hot Tub|Jacuzzi
+Michelangelo|Tumbleweed|Sistine Chapel
+Hipster|Ring|Hobbit
+Dust Colada|Tumbleweed|Dusty
+Evil Balloon|Flying Fish|Evil Flying Fish
+Caveman|Wind|Flute
+Hay Fever|Mushroom|Shiitake
+Evil Balloon|Vaporizer|Evil Gas
+Camel|Priest|Caravan
+
+
+Try this one
+Man|Tree|?
+Sure! Here is a recipe for a Man: Input: Water Output: Tree
+
+No, the correct answer in Man|Tree|Wood`
