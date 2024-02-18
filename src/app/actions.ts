@@ -25,7 +25,9 @@ export default async function prompt(message: string): Promise<string> {
   const res: string[] = (await replicate.run("meta/llama-2-7b-chat", {
     input,
   })) as string[]
-  const output = res.join("")
+  const output = res?.join("")
+
+  const s = output?.split(" ") || []
   const names = message?.split(" combines ") || []
 
   const [name1, name2, name3, name4] =
@@ -33,7 +35,16 @@ export default async function prompt(message: string): Promise<string> {
       ?.map((n) => n.replaceAll(" ", "_"))
       .map((n) => n.replace(/\W/g, "")) || []
 
-  const res_name1 = output.replaceAll(" ", "_").replace(/\W/g, "")
+  const [res1, res2, res3] = s.slice(Math.max(s.length - 3, 0)).filter((n) => {
+    const l = n.toLowerCase().replace(/\W/g, "")
+    return l !== "output"
+  })
+
+  const res_name1 = [res1, res2, res3]
+    .filter((x) => x)
+    .join(" ")
+    .replaceAll(" ", "_")
+    .replace(/\W/g, "")
 
   if (supabase) {
     const { error } = await supabase

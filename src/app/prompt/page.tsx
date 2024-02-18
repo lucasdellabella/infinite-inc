@@ -48,6 +48,10 @@ export default function Prompt() {
     console.log("Sending message to replicate")
     const res = message ? await prompt(message) : ""
     setReponse(res)
+    const queryRes = await supabase?.from("combos").select()
+    if (queryRes && queryRes.data) {
+      setCombos(queryRes.data)
+    }
   }
 
   const onChangeMessage = (e: ChangeEvent<HTMLInputElement>) => {
@@ -58,18 +62,26 @@ export default function Prompt() {
       <h1>Hello welcome to prompt page</h1>
       <div>
         <form>
-          <input
-            value={message}
-            onChange={onChangeMessage}
-            className="w-96 border-2 border-solid border-indigo-600"
-            type="text"
-          ></input>
+          <span>
+            <input
+              value={message}
+              onChange={onChangeMessage}
+              className="w-96 border-2 border-solid border-indigo-600"
+              type="text"
+            ></input>{" "}
+            <button
+              className="rounded-md bg-cyan-500 px-3 py-2 text-sm font-semibold text-white hover:bg-cyan-600"
+              onClick={onClickPrompt}
+            >
+              Send
+            </button>{" "}
+            <div>{response}</div>
+          </span>
           <br />
-          <button onClick={onClickPrompt}>Send</button>
         </form>
       </div>
-      <div>{response}</div>
-      <div>
+
+      <div className="border-2 border-solid">
         <ul>
           {combos.map(({ name1, name2, res_name1 }, i) => {
             return (
