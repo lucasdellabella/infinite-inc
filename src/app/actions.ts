@@ -10,6 +10,33 @@ const supabase = createClient(cookies())
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 })
+
+function superComplicatedNormalization(output: string): string | null {
+  const s = output?.split(" ") || []
+
+  const [res1, res2, res3] = s
+    .slice(Math.max(s.length - 3, 0))
+    .filter((n, i) => {
+      console.log(n)
+      const l = n.toLowerCase().replace(/\W/g, "")
+      return (
+        l !== "output" && (i !== 0 || n.charAt(0) === n.charAt(0).toUpperCase())
+      )
+    })
+
+  const [nullCheck] = [res1, res2, res3].filter(
+    (x) => x?.toLowerCase() === "null"
+  )
+
+  return !nullCheck
+    ? [res1, res2, res3]
+        .filter((x) => x)
+        .join(" ")
+        .replaceAll(" ", "_")
+        .replace(/\W/g, "")
+    : null
+}
+
 export default async function prompt(message: string): Promise<string> {
   const input = {
     debug: false,
@@ -22,12 +49,7 @@ export default async function prompt(message: string): Promise<string> {
     min_new_tokens: -1,
     repetition_penalty: 1,
   }
-  const res: string[] = (await replicate.run("meta/llama-2-7b-chat", {
-    input,
-  })) as string[]
-  const output = res?.join("")
 
-  const s = output?.split(" ") || []
   const names = message?.split(" combines ") || []
 
   const [name1, name2, name3, name4] =
@@ -35,16 +57,12 @@ export default async function prompt(message: string): Promise<string> {
       ?.map((n) => n.replaceAll(" ", "_"))
       .map((n) => n.replace(/\W/g, "")) || []
 
-  const [res1, res2, res3] = s.slice(Math.max(s.length - 3, 0)).filter((n) => {
-    const l = n.toLowerCase().replace(/\W/g, "")
-    return l !== "output"
-  })
+  const res: string[] = (await replicate.run("meta/llama-2-7b-chat", {
+    input,
+  })) as string[]
+  const output = res?.join("")
 
-  const res_name1 = [res1, res2, res3]
-    .filter((x) => x)
-    .join(" ")
-    .replaceAll(" ", "_")
-    .replace(/\W/g, "")
+  const res_name1 = superComplicatedNormalization(output)
 
   if (supabase) {
     const { error } = await supabase
