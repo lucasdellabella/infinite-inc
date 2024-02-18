@@ -26,7 +26,7 @@ export default async function prompt(message: string): Promise<string> {
     input,
   })) as string[]
   const output = res.join("")
-  const names = message?.split(" ") || []
+  const names = message?.split(" combines ") || []
 
   const [name1, name2, name3, name4] =
     names
