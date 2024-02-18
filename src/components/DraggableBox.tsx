@@ -10,20 +10,23 @@ interface BoxProps {
 }
 
 const DraggableBox: React.FC<BoxProps> = ({ id, left, top }) => {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: "box",
-    item: { id, left, top },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
+  const [{ isDragging }, drag] = useDrag(
+    () => ({
+      type: "box",
+      item: { id, left, top },
+      collect: (monitor) => ({
+        isDragging: !!monitor.isDragging(),
+      }),
     }),
-  }))
+    [id, left, top]
+  )
 
   // Using TailwindCSS for styling
   return (
     <div
       ref={drag}
       className={`w-fit cursor-pointer border border-slate-300 px-3 py-2 ${isDragging ? "opacity-0" : "opacity-100"}`}
-      style={{ position: "absolute", left, top }}
+      style={{ transform: `translate(${left}px, ${top}px)` }}
     >
       <span className="mr-2">🐉</span>Dragon
     </div>
