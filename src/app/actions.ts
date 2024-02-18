@@ -14,21 +14,17 @@ const replicate = new Replicate({
 function superComplicatedNormalization(output: string): string | null {
   const s = output?.split(" ") || []
 
-  const [res1, res2, res3] = s
-    .slice(Math.max(s.length - 3, 0))
-    .filter((n, i) => {
-      const l = n.toLowerCase().replace(/\W/g, "")
-      return (
-        l !== "output" && (i !== 0 || n.charAt(0) === n.charAt(0).toUpperCase())
-      )
-    })
+  const [res1, res2] = s.slice(Math.max(s.length - 3, 0)).filter((n, i) => {
+    const l = n.toLowerCase().replace(/\W/g, "")
+    return (
+      l !== "output" && (i !== 0 || n.charAt(0) === n.charAt(0).toUpperCase())
+    )
+  })
 
-  const [nullCheck] = [res1, res2, res3].filter(
-    (x) => x?.toLowerCase() === "null"
-  )
+  const [nullCheck] = [res1, res2].filter((x) => x?.toLowerCase() === "null")
 
   return !nullCheck
-    ? [res1, res2, res3]
+    ? [res1, res2]
         .filter((x) => x)
         .join(" ")
         .replaceAll(" ", "_")
