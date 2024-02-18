@@ -83,10 +83,10 @@ export default function Prompt() {
 
       <div className="border-2 border-solid">
         <ul>
-          {combos.map(({ name1, name2, res_name1 }, i) => {
+          {combos.map(({ name1, name2, name3, name4, res_name1 }, i) => {
             return (
               <li key={i}>
-                {name1} + {name2} = {res_name1}
+                {`${[name1, name2, name3, name4].filter((x) => x).join(" + ")} = ${res_name1}`}
               </li>
             )
           })}

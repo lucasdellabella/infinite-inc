@@ -45,10 +45,12 @@ export default async function prompt(message: string): Promise<string> {
     repetition_penalty: 1,
   }
 
-  const names = message?.split(" combines ") || []
+  const [subject, objects] = message?.split(" combines ") || []
+
+  const ands = objects.split(" and ")
 
   const [name1, name2, name3, name4] =
-    names
+    [subject, ...ands]
       ?.map((n) => n.replaceAll(" ", "_"))
       .map((n) => n.replace(/\W/g, "")) || []
 
