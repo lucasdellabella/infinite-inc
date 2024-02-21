@@ -282,4 +282,6 @@ Question>Evil Balloon|Vaporizer|?
 Answer>Evil Balloon|Vaporizer|Evil Gas
 
 Question>Camel|Priest|?
-Answer>Camel|Priest|Caravan`
+Answer>Camel|Priest|Caravan
+
+ONLY RESPOND WITH A SINGLE RECIPE THAT MATCHES THE PROMPT!!!`
