@@ -8,12 +8,11 @@ const openai = new OpenAI({
 
 export async function run(
   prompt: string,
-  systemPrompt?: string
+  systemPrompt: string
 ): Promise<string | null> {
-  const systemPromptActual = systemPrompt || infiniteCraftPrompt
   const chatCompletion = await openai.chat.completions.create({
     messages: [
-      { role: "system", content: systemPromptActual },
+      { role: "system", content: systemPrompt },
       { role: "user", content: prompt },
     ],
     model: "gpt-3.5-turbo",

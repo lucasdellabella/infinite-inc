@@ -8,12 +8,34 @@ import {
 } from "@/util/replicate"
 import { createClient } from "@/util/supabase/server"
 
+import { infiniteCraftPrompt } from "@/lib/serverPrompts"
+
 const supabase = createClient(cookies())
+
+export async function promptEmoji(label: string): Promise<string> {
+  const output = await openaiRun(
+    `What emoji best represents this idea? No more than 3 emojis, prefer 1 emoji:
+    
+    ${label}`,
+    "You are a creative, humorous individual good at clearly communicating via emojis."
+  )
+
+  if (supabase) {
+    const { error } = await supabase
+      ?.from("combos")
+      .update({ emojis: output })
+      .eq("res_name1", label)
+    if (error) {
+      console.log("insert failed", error)
+    }
+  }
+  return output || "Not valid combo"
+}
 
 export async function prompt(name1: string, name2: string): Promise<string> {
   const prompt = [name1, name2, "?"].join("|")
 
-  const output = await openaiRun(prompt)
+  const output = await openaiRun(prompt, infiniteCraftPrompt)
 
   const s = output?.split("|")
   const [res_name1] = s?.slice(Math.max(s.length - 1, 0)) || []

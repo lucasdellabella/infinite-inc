@@ -11,6 +11,7 @@ import {
 import "reactflow/dist/style.css"
 import "./style.css"
 
+import { prompt, promptEmoji } from "./actions"
 import MyNode from "./MyNode"
 
 const panelStyle = {
@@ -22,6 +23,8 @@ const nodeTypes = {
   "my-node": MyNode,
 }
 
+type MyNodeType = Node<{ label: string; emoji: string }>
+
 const CollisionDetectionFlow = () => {
   // this ref stores the current dragged node
   const dragRef = useRef(null)
@@ -32,11 +35,11 @@ const CollisionDetectionFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
-  const onNodeDragStart = (evt: MouseEvent, node: Node) => {
+  const onNodeDragStart = (evt: MouseEvent, node: MyNodeType) => {
     dragRef.current = node
   }
 
-  const onNodeDrag = (evt: MouseEvent, node: Node) => {
+  const onNodeDrag = (evt: MouseEvent, node: MyNodeType) => {
     // calculate the center point of the node from position and dimensions
     const centerX = node.position.x + node.width / 2
     const centerY = node.position.y + node.height / 2
@@ -54,25 +57,41 @@ const CollisionDetectionFlow = () => {
     setTarget(targetNode)
   }
 
-  const onNodeDragStop = (evt: MouseEvent, node: Node) => {
+  const combine = async (
+    targetData: MyNodeType["data"],
+    draggedData: MyNodeType["data"]
+  ) => {
+    const label = (await prompt(targetData.label, draggedData.label)).split(
+      "|"
+    )[2]
+    console.log(label)
+    const emojis = await promptEmoji(label)
+    console.log(emojis)
+
+    return {
+      label,
+      emoji: emojis,
+    }
+  }
+
+  const onNodeDragStop = async (evt: MouseEvent, node: MyNodeType) => {
     // on drag stop, we swap the colors of the nodes
-    const nodeColor = node.data.label
-    const targetColor = target?.data.label
-    const newNodes = nodes.filter(
+    const retainedNodes = nodes.filter(
       (n) => ![dragRef?.current?.id, target?.id].includes(n.id)
     )
+    const draggedNode = nodes.find((n) => dragRef?.current?.id === n.id)
+    const targetNode = nodes.find((n) => target?.id === n.id)
 
-    setNodes((nodes) =>
-      nodes.map((n) => {
-        if (n.id === target?.id) {
-          n.data = { ...n.data, color: nodeColor, label: nodeColor }
-        }
-        if (n.id === node.id && target) {
-          n.data = { ...n.data, color: targetColor, label: targetColor }
-        }
-        return n
-      })
-    )
+    if (!(draggedNode && targetNode)) {
+      throw new Error("nodes not found")
+    }
+
+    const newNode = {
+      ...targetNode,
+      data: await combine(targetNode.data, draggedNode.data),
+    }
+
+    setNodes([...retainedNodes, newNode])
 
     setTarget(null)
     dragRef.current = null

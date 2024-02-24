@@ -74,6 +74,7 @@ export type Database = {
           count3: number | null
           count4: number | null
           created_at: string
+          emojis: string | null
           id: number
           ingredients_consumed: boolean | null
           name1: string | null
@@ -91,6 +92,7 @@ export type Database = {
           count3?: number | null
           count4?: number | null
           created_at?: string
+          emojis?: string | null
           id?: number
           ingredients_consumed?: boolean | null
           name1?: string | null
@@ -108,6 +110,7 @@ export type Database = {
           count3?: number | null
           count4?: number | null
           created_at?: string
+          emojis?: string | null
           id?: number
           ingredients_consumed?: boolean | null
           name1?: string | null
@@ -127,6 +130,7 @@ export type Database = {
           created_at: string | null
           creator_id: string | null
           id: string
+          issue_id: string | null
           org_id: string | null
           parent_id: string | null
           reaction_data: Json | null
@@ -137,6 +141,7 @@ export type Database = {
           created_at?: string | null
           creator_id?: string | null
           id?: string
+          issue_id?: string | null
           org_id?: string | null
           parent_id?: string | null
           reaction_data?: Json | null
@@ -147,6 +152,7 @@ export type Database = {
           created_at?: string | null
           creator_id?: string | null
           id?: string
+          issue_id?: string | null
           org_id?: string | null
           parent_id?: string | null
           reaction_data?: Json | null
@@ -168,6 +174,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "public_comments_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "public_comments_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
@@ -175,6 +188,27 @@ export type Database = {
             referencedColumns: ["id"]
           }
         ]
+      }
+      emails: {
+        Row: {
+          attachments: Json[] | null
+          created_at: string
+          data: Json | null
+          id: string
+        }
+        Insert: {
+          attachments?: Json[] | null
+          created_at?: string
+          data?: Json | null
+          id?: string
+        }
+        Update: {
+          attachments?: Json[] | null
+          created_at?: string
+          data?: Json | null
+          id?: string
+        }
+        Relationships: []
       }
       histories: {
         Row: {

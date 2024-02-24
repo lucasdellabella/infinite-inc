@@ -6,7 +6,6 @@ const Home: React.FC = () => {
   return (
     <main className="flex h-screen items-center justify-center">
       <Flow />
-      {/* <ReactDndCanvas /> */}
     </main>
   )
 }
