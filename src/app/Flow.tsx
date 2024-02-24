@@ -105,6 +105,7 @@ const CollisionDetectionFlow = () => {
         onNodeDrag={onNodeDrag}
         onNodeDragStop={onNodeDragStop}
         nodeTypes={nodeTypes}
+        className="bg-teal-50"
       >
         <Panel position="top-left" style={panelStyle}>
           Drop any node on top of another node to swap their colors
