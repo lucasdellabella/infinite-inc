@@ -1,7 +1,14 @@
 "use client"
 
-import React, { MouseEvent, useEffect, useRef, useState } from "react"
+import React, {
+  MouseEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 import ReactFlow, { Node, Panel, useEdgesState, useNodesState } from "reactflow"
+import { v4 as uuidv4 } from "uuid"
 
 import {
   edges as initialEdges,
@@ -11,6 +18,15 @@ import {
 import "reactflow/dist/style.css"
 import "./style.css"
 
+import {
+  ArchiveRestoreIcon,
+  LoaderIcon,
+  RefreshCcwDotIcon,
+  SaveIcon,
+} from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+
 import { prompt, promptEmoji } from "./actions"
 import MyNode from "./MyNode"
 
@@ -18,6 +34,9 @@ const panelStyle = {
   fontSize: 12,
   color: "#777",
 }
+
+const flowKey = "example-flow"
+const getNodeId = () => uuidv4()
 
 const nodeTypes = {
   "my-node": MyNode,
@@ -32,8 +51,12 @@ const CollisionDetectionFlow = () => {
   // target is the node that the node is dragged over
   const [target, setTarget] = useState(null)
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    initialNodes.map((node) => ({ ...node, id: getNodeId() }))
+  )
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
+
+  const [rfInstance, setRfInstance] = useState(null)
 
   const onNodeDragStart = (evt: MouseEvent, node: MyNodeType) => {
     dragRef.current = node
@@ -88,6 +111,7 @@ const CollisionDetectionFlow = () => {
 
     const newNode = {
       ...targetNode,
+      id: getNodeId(),
       data: await combine(targetNode.data, draggedNode.data),
     }
 
@@ -112,8 +136,29 @@ const CollisionDetectionFlow = () => {
     )
   }, [target])
 
+  const onSave = useCallback(() => {
+    if (rfInstance) {
+      const flow = rfInstance.toObject()
+      localStorage.setItem(flowKey, JSON.stringify(flow))
+    }
+  }, [rfInstance])
+
+  const onRestore = useCallback(() => {
+    const restoreFlow = async () => {
+      const flow = JSON.parse(localStorage.getItem(flowKey))
+
+      if (flow) {
+        const { x = 0, y = 0, zoom = 1 } = flow.viewport
+        setNodes(flow.nodes || [])
+        setEdges(flow.edges || [])
+      }
+    }
+
+    restoreFlow()
+  }, [setNodes])
+
   return (
-    <div className="container">
+    <div className="container relative p-0">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -124,12 +169,17 @@ const CollisionDetectionFlow = () => {
         onNodeDrag={onNodeDrag}
         onNodeDragStop={onNodeDragStop}
         nodeTypes={nodeTypes}
+        onInit={setRfInstance}
         className="bg-teal-50"
-      >
-        <Panel position="top-left" style={panelStyle}>
-          Drop any node on top of another node to swap their colors
-        </Panel>
-      </ReactFlow>
+      />
+      <div className="absolute left-2 top-2 space-x-2">
+        <Button onClick={onSave}>
+          <SaveIcon className="mr-2 h-4 w-4" /> save
+        </Button>
+        <Button onClick={onRestore}>
+          <LoaderIcon className="mr-2 h-4 w-4" /> restore
+        </Button>
+      </div>
     </div>
   )
 }
