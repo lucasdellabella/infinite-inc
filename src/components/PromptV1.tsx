@@ -1,7 +1,6 @@
 "use client"
 
-import { ChangeEvent, useEffect, useState } from "react"
-import { createClient } from "@/util/supabase/client"
+import { ChangeEvent, useState } from "react"
 
 import { prompt1 } from "@/app/actions"
 

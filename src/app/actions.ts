@@ -18,10 +18,11 @@ export async function prompt(name1: string, name2: string): Promise<string> {
   const s = output?.split("|")
   const [res_name1] = s?.slice(Math.max(s.length - 1, 0)) || []
 
-  const [n1, n2, r1] =
-    [name1, name2, res_name1]
-      .map((n) => n.replaceAll(" ", "_"))
-      .map((n) => n.replace(/\W/g, ""))
+  const r1 = res_name1.replaceAll(" ", "_").replace(/\W/g, "").toLowerCase()
+
+  const [n1, n2] =
+    [name1, name2]
+      .map((n) => n.replaceAll(" ", "_").replace(/\W/g, "").toLowerCase())
       .sort() || []
   if (supabase) {
     const { error } = await supabase

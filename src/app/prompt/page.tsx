@@ -1,27 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Combo } from "@/types"
 import { createClient } from "@/util/supabase/client"
 
 import PromptV1 from "@/components/PromptV1"
 import PromptV2 from "@/components/PromptV2"
-
-export interface Combo {
-  count1: number | null
-  count2: number | null
-  count3: number | null
-  count4: number | null
-  created_at: string
-  id: number
-  name1: string | null
-  name2: string | null
-  name3: string | null
-  name4: string | null
-  res_count1: number | null
-  res_count2: number | null
-  res_name1: string | null
-  res_name2: string | null
-}
 
 export default function Prompt() {
   const supabase = createClient()
