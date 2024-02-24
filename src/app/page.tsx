@@ -1,9 +1,6 @@
 import React from "react"
-import { DndProvider } from "react-dnd"
-import { HTML5Backend } from "react-dnd-html5-backend"
 
-import DraggableBox from "@/components/DraggableBox"
-import ReactDndCanvas from "@/components/ReactDndCanvas"
+import Flow from "./Flow"
 
 const Home: React.FC = () => {
   // Initial position for the draggable box
@@ -11,7 +8,8 @@ const Home: React.FC = () => {
 
   return (
     <main className="flex h-screen items-center justify-center">
-      <ReactDndCanvas />
+      <Flow />
+      {/* <ReactDndCanvas /> */}
     </main>
   )
 }

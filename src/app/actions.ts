@@ -37,6 +37,10 @@ function superComplicatedNormalization(output: string): string | null {
     : null
 }
 
+export async function combine(item1: string, item2: string) {
+  return `item3`
+}
+
 export default async function prompt(message: string): Promise<string> {
   const input = {
     debug: false,
