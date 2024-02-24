@@ -2,13 +2,13 @@ export const nodes = [
   {
     id: "1",
     type: "my-node",
-    data: { label: "earth", emoji: "🌎" },
+    data: { label: "farmer", emoji: "👩‍🌾" },
     position: { x: 0, y: 50 },
   },
   {
     id: "2",
     type: "my-node",
-    data: { label: "seed", emoji: "🌱" },
+    data: { label: "land", emoji: "🏔" },
     position: { x: -200, y: 200 },
   },
   {
