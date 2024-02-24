@@ -8,7 +8,13 @@ import { prompt } from "@/app/actions"
 export default function GameV1() {
   const supabase = createClient()
   const [board, setBoard] = useState<[string, string, string | null][]>([])
-  const [inventory, setInventory] = useState<string[]>([])
+  const [inventory, setInventory] = useState(
+    new Map<string, number>([
+      ["Man", 1],
+      ["Punch", 1],
+      ["Tree", 1],
+    ])
+  )
 
   const [input1, setInput1] = useState<string>("")
   const [input2, setInput2] = useState<string>("")
@@ -53,6 +59,17 @@ export default function GameV1() {
       })
     )
     setBoard(newBoard)
+
+    const newInventory = new Map(inventory)
+
+    newBoard.forEach(([n1, n2, r1]) => {
+      const updateValue = (n: string, q: number) => {
+        newInventory.set(n, (newInventory.get(n) || 0) + q)
+      }
+      ;[n1, n2].filter((x) => x !== "Punch").forEach((x) => updateValue(x, -1))
+      if (r1) updateValue(r1, 1)
+    })
+    setInventory(newInventory)
   }
   const onClickAdd = async (e: MouseEvent) => {
     if (input1 && input2) {
@@ -62,9 +79,8 @@ export default function GameV1() {
     }
   }
   const onClickRemove = async (e: MouseEvent) => {
-    const [s1, s2] = [input1, input2].sort()
     const newBoard = board.filter(
-      ([name1, name2]) => name1 !== s1 || name2 !== s2
+      ([name1, name2]) => name1 !== input1 || name2 !== input2
     )
     setBoard(newBoard)
     setInput1("")
@@ -109,7 +125,16 @@ export default function GameV1() {
         {" -----"}
         <br />
         <h1>Inventory</h1>
-        {JSON.stringify(inventory)}
+        {Array.from(inventory.entries())
+          .sort(([x], [y]) => x.localeCompare(y))
+          .map((x, i) => (
+            <li
+              onClick={() => (!input1 ? setInput1(x[0]) : setInput2(x[0]))}
+              key={i}
+            >
+              {JSON.stringify(x)}
+            </li>
+          ))}
       </div>
       <button
         className="rounded-md bg-purple-500 px-3 py-2 text-sm font-semibold text-white hover:bg-purple-600"
