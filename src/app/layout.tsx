@@ -74,14 +74,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           inter.className
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ClientDndProvider>{children}</ClientDndProvider>
-        </ThemeProvider>
+        <ClientDndProvider>{children}</ClientDndProvider>
       </body>
     </html>
   )
