@@ -10,7 +10,6 @@ export default function GameV1() {
   const [board, setBoard] = useState<[string, string, string | null][]>([])
   const [inventory, setInventory] = useState(
     new Map<string, number>([
-      ["Man", 1],
       ["Punch", 1],
       ["Tree", 1],
     ])
@@ -20,6 +19,7 @@ export default function GameV1() {
   const [input2, setInput2] = useState<string>("")
 
   const onClickPrompt = async (e: MouseEvent) => {
+    if (!board || board.length === 0) return
     const hashFn = (n1: string, n2: string) => {
       const [name1, name2] = [n1, n2].sort()
       return `and(name1.eq.${name1},name2.eq.${name2})`
@@ -64,10 +64,16 @@ export default function GameV1() {
 
     newBoard.forEach(([n1, n2, r1]) => {
       const updateValue = (n: string, q: number) => {
-        newInventory.set(n, (newInventory.get(n) || 0) + q)
+        if (newInventory.has(n) && (newInventory.get(n) || 0) > 0) {
+          newInventory.set(n, (newInventory.get(n) || 0) + q)
+          return true
+        } else return false
       }
-      ;[n1, n2].filter((x) => x !== "Punch").forEach((x) => updateValue(x, -1))
-      if (r1) updateValue(r1, 1)
+      const check = [n1, n2]
+        .filter((x) => x !== "Punch")
+        .map((x) => updateValue(x, -1))
+        .every((x) => x === true)
+      if (r1 && check) updateValue(r1, 1)
     })
     setInventory(newInventory)
   }
