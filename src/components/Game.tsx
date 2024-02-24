@@ -1,13 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { createClient } from "@/util/supabase/client"
+import { capitalizeWords } from "@/util/str"
+import { createClient, dbNormalizeStr } from "@/util/supabase/client"
 
 import { prompt } from "@/app/actions"
 
 export default function GameV1() {
   const supabase = createClient()
   const [board, setBoard] = useState<[string, string, string | null][]>([])
+
   const [inventory, setInventory] = useState(
     new Map<string, number>([
       ["Punch", 1],
@@ -21,7 +23,7 @@ export default function GameV1() {
   const onClickPrompt = async (e: MouseEvent) => {
     if (!board || board.length === 0) return
     const hashFn = (n1: string, n2: string) => {
-      const [name1, name2] = [n1, n2].sort()
+      const [name1, name2] = [n1, n2].map(dbNormalizeStr).sort()
       return `and(name1.eq.${name1},name2.eq.${name2})`
     }
 
@@ -38,7 +40,14 @@ export default function GameV1() {
 
     const comboMap = new Map(
       existingCombos?.map(({ name1, name2, res_name1 }) => {
-        return name1 && name2 ? [hashFn(name1, name2), res_name1] : ["", null]
+        return name1 && name2
+          ? [
+              hashFn(name1, name2),
+              res_name1
+                ? capitalizeWords(res_name1).replaceAll("_", " ")
+                : null,
+            ]
+          : ["", null]
       }) || []
     )
 
@@ -58,27 +67,33 @@ export default function GameV1() {
         }
       })
     )
-    setBoard(newBoard)
 
     const newInventory = new Map(inventory)
+    const indexes: number[] = []
 
-    newBoard.forEach(([n1, n2, r1]) => {
-      const updateValue = (n: string, q: number) => {
-        if (newInventory.has(n) && (newInventory.get(n) || 0) > 0) {
-          newInventory.set(n, (newInventory.get(n) || 0) + q)
-          return true
-        } else return false
-      }
+    newBoard.forEach(([n1, n2, r1], i) => {
+      const updateValue = (n: string, q: number) =>
+        newInventory.set(n, (newInventory.get(n) || 0) + q)
+
       const check = [n1, n2]
         .filter((x) => x !== "Punch")
-        .map((x) => updateValue(x, -1))
+        .map((n) => {
+          if (newInventory.has(n) && (newInventory.get(n) || 0) > 0) {
+            updateValue(n, -1)
+            return true
+          } else {
+            indexes.push(i)
+            return false
+          }
+        })
         .every((x) => x === true)
       if (r1 && check) updateValue(r1, 1)
     })
     setInventory(newInventory)
+    setBoard(newBoard.filter((_, i) => indexes.indexOf(i) === -1))
   }
   const onClickAdd = async (e: MouseEvent) => {
-    if (input1 && input2) {
+    if (input1 && input2 && board.length <= 10) {
       setBoard([...board, [input1, input2, null]])
       setInput1("")
       setInput2("")
@@ -125,14 +140,14 @@ export default function GameV1() {
           </button>{" "}
         </span>
         <br />
-        <h1>Board</h1>
+        <h1>Board {board.length}/10</h1>
         {JSON.stringify(board)}
         <br />
         {" -----"}
         <br />
         <h1>Inventory</h1>
         {Array.from(inventory.entries())
-          .sort(([x], [y]) => x.localeCompare(y))
+          .sort(([, x], [, y]) => y - x)
           .map((x, i) => (
             <li
               onClick={() => (!input1 ? setInput1(x[0]) : setInput2(x[0]))}

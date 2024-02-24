@@ -11,3 +11,7 @@ export function createClient() {
     console.log(e)
   }
 }
+
+export function dbNormalizeStr(x: string) {
+  return x.replaceAll(" ", "_").replace(/\W/g, "").toLowerCase()
+}
