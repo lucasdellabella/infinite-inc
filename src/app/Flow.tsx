@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from "react"
-import ReactFlow, { Panel, useEdgesState, useNodesState } from "reactflow"
+import React, { MouseEvent, useEffect, useRef, useState } from "react"
+import ReactFlow, { Node, Panel, useEdgesState, useNodesState } from "reactflow"
 
 import {
   edges as initialEdges,
@@ -11,9 +11,15 @@ import {
 import "reactflow/dist/style.css"
 import "./style.css"
 
+import MyNode from "./MyNode"
+
 const panelStyle = {
   fontSize: 12,
   color: "#777",
+}
+
+const nodeTypes = {
+  "my-node": MyNode,
 }
 
 const CollisionDetectionFlow = () => {
@@ -26,11 +32,11 @@ const CollisionDetectionFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
-  const onNodeDragStart = (evt, node) => {
+  const onNodeDragStart = (evt: MouseEvent, node: Node) => {
     dragRef.current = node
   }
 
-  const onNodeDrag = (evt, node) => {
+  const onNodeDrag = (evt: MouseEvent, node: Node) => {
     // calculate the center point of the node from position and dimensions
     const centerX = node.position.x + node.width / 2
     const centerY = node.position.y + node.height / 2
@@ -48,10 +54,13 @@ const CollisionDetectionFlow = () => {
     setTarget(targetNode)
   }
 
-  const onNodeDragStop = (evt, node) => {
+  const onNodeDragStop = (evt: MouseEvent, node: Node) => {
     // on drag stop, we swap the colors of the nodes
     const nodeColor = node.data.label
     const targetColor = target?.data.label
+    const newNodes = nodes.filter(
+      (n) => ![dragRef?.current?.id, target?.id].includes(n.id)
+    )
 
     setNodes((nodes) =>
       nodes.map((n) => {
@@ -75,17 +84,9 @@ const CollisionDetectionFlow = () => {
     setNodes((nodes) =>
       nodes.map((node) => {
         if (node.id === target?.id) {
-          node.style = {
-            ...node.style,
-            backgroundColor: dragRef.current?.data.color,
-          }
-          node.data = { ...node.data, label: dragRef.current?.data.color }
+          console.log(`${target?.id} is target`)
         } else if (node.id === dragRef.current?.id && target) {
-          node.style = { ...node.style, backgroundColor: target.data.color }
-          node.data = { ...node.data, label: target.data.color }
-        } else {
-          node.style = { ...node.style, backgroundColor: node.data.color }
-          node.data = { ...node.data, label: node.data.color }
+          console.log(`${node.id} is draggable`)
         }
         return node
       })
@@ -103,6 +104,7 @@ const CollisionDetectionFlow = () => {
         onNodeDragStart={onNodeDragStart}
         onNodeDrag={onNodeDrag}
         onNodeDragStop={onNodeDragStop}
+        nodeTypes={nodeTypes}
       >
         <Panel position="top-left" style={panelStyle}>
           Drop any node on top of another node to swap their colors

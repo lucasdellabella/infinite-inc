@@ -22,10 +22,6 @@
   font-family: monospace;
 }
 
-.react-flow__node.dragging {
-  padding: 5px 5px;
-}
-
 .react-flow__node.is-dropzone {
   border-style: dashed;
 }
