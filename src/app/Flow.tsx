@@ -58,9 +58,33 @@ const CollisionDetectionFlow = () => {
 
   const [rfInstance, setRfInstance] = useState(null)
 
+  const onSave = useCallback(() => {
+    if (rfInstance) {
+      const flow = rfInstance.toObject()
+      localStorage.setItem(flowKey, JSON.stringify(flow))
+    }
+  }, [rfInstance])
+
+  const onRestore = useCallback(() => {
+    const restoreFlow = async () => {
+      const flow = JSON.parse(localStorage.getItem(flowKey))
+
+      if (flow) {
+        const { x = 0, y = 0, zoom = 1 } = flow.viewport
+        setNodes(flow.nodes || [])
+      }
+    }
+
+    restoreFlow()
+  }, [setNodes])
+
   const onNodeDragStart = (evt: MouseEvent, node: MyNodeType) => {
     dragRef.current = node
   }
+
+  useEffect(() => {
+    onRestore()
+  }, [onRestore])
 
   const onNodeDrag = (evt: MouseEvent, node: MyNodeType) => {
     // calculate the center point of the node from position and dimensions
@@ -105,20 +129,19 @@ const CollisionDetectionFlow = () => {
     const draggedNode = nodes.find((n) => dragRef?.current?.id === n.id)
     const targetNode = nodes.find((n) => target?.id === n.id)
 
-    if (!(draggedNode && targetNode)) {
-      throw new Error("nodes not found")
-    }
+    if (draggedNode && targetNode) {
+      const newNode = {
+        ...targetNode,
+        id: getNodeId(),
+        data: await combine(targetNode.data, draggedNode.data),
+      }
 
-    const newNode = {
-      ...targetNode,
-      id: getNodeId(),
-      data: await combine(targetNode.data, draggedNode.data),
+      setNodes([...retainedNodes, newNode])
     }
-
-    setNodes([...retainedNodes, newNode])
 
     setTarget(null)
     dragRef.current = null
+    onSave()
   }
 
   useEffect(() => {
@@ -135,27 +158,6 @@ const CollisionDetectionFlow = () => {
       })
     )
   }, [target])
-
-  const onSave = useCallback(() => {
-    if (rfInstance) {
-      const flow = rfInstance.toObject()
-      localStorage.setItem(flowKey, JSON.stringify(flow))
-    }
-  }, [rfInstance])
-
-  const onRestore = useCallback(() => {
-    const restoreFlow = async () => {
-      const flow = JSON.parse(localStorage.getItem(flowKey))
-
-      if (flow) {
-        const { x = 0, y = 0, zoom = 1 } = flow.viewport
-        setNodes(flow.nodes || [])
-        setEdges(flow.edges || [])
-      }
-    }
-
-    restoreFlow()
-  }, [setNodes])
 
   return (
     <div className="container relative p-0">
