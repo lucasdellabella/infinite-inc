@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react"
+import { GameEngine } from "react-game-engine"
 import ReactFlow, { Node, Panel, useEdgesState, useNodesState } from "reactflow"
 import { v4 as uuidv4 } from "uuid"
 
@@ -18,6 +19,7 @@ import {
 import "reactflow/dist/style.css"
 import "./style.css"
 
+import dynamic from "next/dynamic"
 import {
   ArchiveRestoreIcon,
   LoaderIcon,
@@ -30,6 +32,9 @@ import { Button } from "@/components/ui/button"
 import { prompt, promptEmoji } from "./actions"
 import MyNode from "./MyNode"
 
+const MyGameEngine = dynamic(() => GameEngine, {
+  ssr: false,
+})
 const panelStyle = {
   fontSize: 12,
   color: "#777",
@@ -42,7 +47,7 @@ const nodeTypes = {
   "my-node": MyNode,
 }
 
-type MyNodeType = Node<{ label: string; emoji: string }>
+export type MyNodeType = Node<{ label: string; emoji: string }>
 
 const CollisionDetectionFlow = () => {
   // this ref stores the current dragged node
@@ -174,6 +179,9 @@ const CollisionDetectionFlow = () => {
         onInit={setRfInstance}
         className="bg-teal-50"
       />
+      {typeof window !== "undefined" && (
+        <MyGameEngine entities={nodes.map(({ position }) => position)} />
+      )}
       <div className="absolute left-2 top-2 space-x-2">
         <Button onClick={onSave}>
           <SaveIcon className="mr-2 h-4 w-4" /> save

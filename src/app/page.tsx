@@ -1,4 +1,8 @@
+"use client"
+
 import React from "react"
+
+import "regenerator-runtime/runtime.js"
 
 import Flow from "./Flow"
 
