@@ -1,13 +1,14 @@
 "use client"
 
-import React, {
+import {
   MouseEvent,
+  ReactNode,
   useCallback,
   useEffect,
   useRef,
   useState,
 } from "react"
-import ReactFlow, { Node, Panel, useEdgesState, useNodesState } from "reactflow"
+import ReactFlow, { Node, useEdgesState, useNodesState } from "reactflow"
 import { v4 as uuidv4 } from "uuid"
 
 import {
@@ -18,17 +19,15 @@ import {
 import "reactflow/dist/style.css"
 import "./style.css"
 
-import {
-  ArchiveRestoreIcon,
-  LoaderIcon,
-  RefreshCcwDotIcon,
-  SaveIcon,
-} from "lucide-react"
+import { LoaderIcon, SaveIcon } from "lucide-react"
+import { GameEngine } from "react-game-engine"
 
 import { Button } from "@/components/ui/button"
 
 import { prompt, promptEmoji } from "./actions"
 import MyNode from "./MyNode"
+import { Box } from "./renderers"
+import { MoveBox, MoveNode } from "./systems"
 
 const panelStyle = {
   fontSize: 12,
@@ -41,8 +40,11 @@ const getNodeId = () => uuidv4()
 const nodeTypes = {
   "my-node": MyNode,
 }
-
-type MyNodeType = Node<{ label: string; emoji: string }>
+export type MyNodeType = Node<{ label: string; emoji: string }>
+export interface EntitiesPayload {
+  nodes: MyNodeType[]
+  box1: { x: number; y: number; renderer: ReactNode }
+}
 
 const CollisionDetectionFlow = () => {
   // this ref stores the current dragged node
@@ -160,29 +162,38 @@ const CollisionDetectionFlow = () => {
   }, [target])
 
   return (
-    <div className="container relative p-0">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        fitView
-        onNodeDragStart={onNodeDragStart}
-        onNodeDrag={onNodeDrag}
-        onNodeDragStop={onNodeDragStop}
-        nodeTypes={nodeTypes}
-        onInit={setRfInstance}
-        className="bg-teal-50"
-      />
-      <div className="absolute left-2 top-2 space-x-2">
-        <Button onClick={onSave}>
-          <SaveIcon className="mr-2 h-4 w-4" /> save
-        </Button>
-        <Button onClick={onRestore}>
-          <LoaderIcon className="mr-2 h-4 w-4" /> restore
-        </Button>
+    <GameEngine
+      style={{ width: "100vw", height: "100vh", backgroundColor: "blue" }}
+      systems={[MoveBox, MoveNode(setNodes)]}
+      entities={{
+        nodes: nodes,
+        box1: { x: 200, y: 200, renderer: <Box /> },
+      }}
+    >
+      <div className="container relative p-0">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          fitView
+          onNodeDragStart={onNodeDragStart}
+          onNodeDrag={onNodeDrag}
+          onNodeDragStop={onNodeDragStop}
+          nodeTypes={nodeTypes}
+          onInit={setRfInstance}
+          className="bg-teal-50"
+        ></ReactFlow>
+        <div className="absolute left-2 top-2 space-x-2">
+          <Button onClick={onSave}>
+            <SaveIcon className="mr-2 h-4 w-4" /> save
+          </Button>
+          <Button onClick={onRestore}>
+            <LoaderIcon className="mr-2 h-4 w-4" /> restore
+          </Button>
+        </div>
       </div>
-    </div>
+    </GameEngine>
   )
 }
 
