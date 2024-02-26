@@ -1,6 +1,5 @@
 "use client"
 
-import { cache } from "react"
 
 import { prompt } from "@/app/actions"
 
