@@ -1,23 +1,23 @@
-import { EventName } from "../../tmp_events"
+import { EventName } from "../tmp_events";
 
 export interface InternalEvent {
-  type: string
+  type: string;
 }
 export type Input =
   | React.MouseEvent<HTMLDivElement>
   | React.TouchEvent<HTMLDivElement>
-  | React.KeyboardEvent<HTMLDivElement>
+  | React.KeyboardEvent<HTMLDivElement>;
 
 export interface SystemArgs<U> {
-  input: { name: EventName; payload: Input }[]
-  window: Window
-  events: (U | InternalEvent)[]
-  dispatch: (e: U | InternalEvent) => void
-  defer: (e: U) => void
+  input: { name: EventName; payload: Input }[];
+  window: Window;
+  events: (U | InternalEvent)[];
+  dispatch: (e: U | InternalEvent) => void;
+  defer: (e: U) => void;
   time: {
-    current: number
-    previous: number | null
-    delta: number
-    previousDelta: number | null
-  }
+    current: number;
+    previous: number | null;
+    delta: number;
+    previousDelta: number | null;
+  };
 }
