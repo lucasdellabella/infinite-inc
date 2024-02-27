@@ -1,6 +1,7 @@
 interface Node {
   x: number
   y: number
+  id: string
 }
 
 interface Props {
@@ -11,11 +12,12 @@ const Nodes = ({ nodes }: Props) => {
   const size = 100
   return (
     <div>
-      {nodes.map(({ x, y }, i) => {
+      {nodes.map(({ x, y, id }) => {
         return (
           <div
-            key={i}
-            className="absolute left-0 top-0 bg-red-900 opacity-50"
+            key={id}
+            data-entity-id={id}
+            className="absolute left-0 top-0 cursor-pointer bg-red-900"
             style={{
               width: size,
               height: size,

@@ -7,12 +7,14 @@ import { v4 as uuidv4 } from "uuid"
 import { Button } from "@/components/ui/button"
 
 import Nodes from "./renderers/Nodes"
-import { MoveBox } from "./systems/moveNodes"
+import { handleDrag } from "./systems/handleDrag"
+import { moveNodes } from "./systems/moveNodes"
 
 interface Node {
   x: number
   y: number
   id: string
+  isBeingDragged?: boolean
 }
 
 export interface EntitiesPayload {
@@ -27,7 +29,7 @@ const CollisionDetectionFlow = () => {
         width: "100vw",
         height: "100vh",
       }}
-      systems={[MoveBox]}
+      systems={[moveNodes, handleDrag]}
       entities={{
         gameObjects: { nodes: nodes, renderer: Nodes },
       }}
