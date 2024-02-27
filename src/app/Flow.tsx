@@ -25,9 +25,9 @@ import { GameEngine } from "react-game-engine"
 import { Button } from "@/components/ui/button"
 
 import { prompt, promptEmoji } from "./actions"
+import { MoveBox, MoveNode } from "./engine-only/systems/moveNodes"
 import MyNode from "./MyNode"
 import { Box } from "./renderers"
-import { MoveBox, MoveNode } from "./systems"
 
 const panelStyle = {
   fontSize: 12,
