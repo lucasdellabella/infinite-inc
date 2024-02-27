@@ -1,4 +1,4 @@
-import { EntitiesPayload } from "../engine-only/page";
+import { EntitiesPayload } from "../App";
 import { SystemArgs } from "./utils";
 
 export const handleDrag = (() => {
@@ -18,7 +18,7 @@ export const handleDrag = (() => {
         ({ id }) => id === targetEntityId
       );
       if (entity) {
-        entity.isBeingDragged = true;
+        entity.draggable.isBeingDragged = true;
         dragOffset = {
           x: payload?.clientX - payload?.target.getBoundingClientRect().left,
           y: payload?.clientY - payload?.target.getBoundingClientRect().top,
@@ -28,15 +28,15 @@ export const handleDrag = (() => {
       const entity = entities.gameObjects.nodes.find(
         ({ id }) => id === targetEntityId
       );
-      entity.x = payload?.pageX - dragOffset.x;
-      entity.y = payload?.pageY - dragOffset.y;
+      entity.position.x = payload?.pageX - dragOffset.x;
+      entity.position.y = payload?.pageY - dragOffset.y;
     } else if (targetEntityId && name === "onMouseUp") {
       const entity = entities.gameObjects.nodes.find(
         ({ id }) => id === targetEntityId
       );
       targetEntityId = "";
       dragOffset = { x: 0, y: 0 };
-      entity.isBeingDragged = false;
+      entity.draggable.isBeingDragged = false;
     }
 
     return entities;

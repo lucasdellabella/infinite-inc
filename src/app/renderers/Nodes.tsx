@@ -1,18 +1,18 @@
-interface Node {
-  x: number
-  y: number
-  id: string
-}
+import { GameObject } from "../App";
 
 interface Props {
-  nodes: Node[]
+  nodes: GameObject[];
 }
 
 const Nodes = ({ nodes }: Props) => {
-  const size = 100
+  const size = 100;
   return (
     <div>
-      {nodes.map(({ x, y, id }) => {
+      {nodes.map(({ id, position }) => {
+        if (!position) {
+          return null;
+        }
+
         return (
           <div
             key={id}
@@ -21,13 +21,13 @@ const Nodes = ({ nodes }: Props) => {
             style={{
               width: size,
               height: size,
-              transform: `translate3d(${x}px, ${y}px, 0)`,
+              transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
             }}
           />
-        )
+        );
       })}
     </div>
-  )
-}
+  );
+};
 
-export default Nodes
+export default Nodes;

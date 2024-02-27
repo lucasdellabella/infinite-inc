@@ -16,12 +16,22 @@ interface Node {
   isBeingDragged?: boolean;
 }
 
+interface ComponentDictionary {
+  position?: { x: number; y: number };
+  draggable?: { isBeingDragged: boolean };
+}
+
+export interface GameObject extends ComponentDictionary {
+  id: string;
+  name: string;
+}
+
 export interface EntitiesPayload {
-  gameObjects: { nodes: Node[]; renderer: JSX.Element };
+  gameObjects: { nodes: GameObject[]; renderer: JSX.Element };
 }
 
 function App() {
-  const [nodes] = useState<Node[]>([]);
+  const [nodes] = useState<GameObject[]>([]);
   return (
     <GameEngine
       style={{
@@ -38,9 +48,15 @@ function App() {
         className="border absolute bottom-2 left-2"
         onClick={() => {
           nodes.push({
-            x: 0,
-            y: Math.random() * 500,
+            name: "TEST",
             id: uuidv4(),
+            position: {
+              x: 0,
+              y: Math.random() * 500,
+            },
+            draggable: {
+              isBeingDragged: false,
+            },
           });
         }}
       >

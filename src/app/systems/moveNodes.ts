@@ -1,4 +1,4 @@
-import { EntitiesPayload } from "../engine-only/page";
+import { EntitiesPayload } from "../App";
 import { SystemArgs } from "./utils";
 
 export const moveNodes = (
@@ -6,9 +6,11 @@ export const moveNodes = (
   { input, time }: SystemArgs<any>
 ) => {
   entities.gameObjects.nodes.forEach((node) => {
-    if (!node.isBeingDragged) {
-      node.x += time.delta / 2 / 10;
-    }
+    // Operate on only applicable nodes
+    if (node.draggable && node.position)
+      if (!node.draggable.isBeingDragged) {
+        node.position.x += time.delta / 2 / 10;
+      }
   });
 
   return entities;
