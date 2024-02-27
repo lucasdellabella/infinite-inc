@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GameEngine } from "react-game-engine";
+import { GameEngine } from "../gameEngine";
 import { v4 as uuidv4 } from "uuid";
 import "../index.css";
 
