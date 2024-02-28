@@ -1,11 +1,51 @@
 import { EntitiesPayload } from "../App";
-import { SystemArgs } from "./utils";
+import { Input, SystemArgs } from "./utils";
+
+function extractPageCoordinates(event: Input): {
+  pageX: number;
+  pageY: number;
+} {
+  let pageX = 0,
+    pageY = 0;
+
+  if (event instanceof MouseEvent) {
+    pageX = event.pageX;
+    pageY = event.pageY;
+  } else if (event instanceof TouchEvent && event.touches.length > 0) {
+    pageX = event.touches[0].pageX;
+    pageY = event.touches[0].pageY;
+  } else {
+    throw new Error(`${JSON.stringify(event)} did not match valid event types`);
+  }
+
+  return { pageX, pageY };
+}
+
+function extractClientCoordinates(event: Input): {
+  clientX: number;
+  clientY: number;
+} {
+  let clientX = 0,
+    clientY = 0;
+
+  if (event instanceof MouseEvent) {
+    clientX = event.clientX;
+    clientY = event.clientY;
+  } else if (event instanceof TouchEvent && event.touches.length > 0) {
+    clientX = event.touches[0].clientX;
+    clientY = event.touches[0].clientY;
+  } else {
+    throw new Error(`${JSON.stringify(event)} did not match valid event types`);
+  }
+
+  return { clientX, clientY };
+}
 
 export const handleDrag = (() => {
   let dragOffset = { x: 0, y: 0 };
   let targetEntityId = "";
 
-  return (entities: EntitiesPayload, { input, time }: SystemArgs<any>) => {
+  return (entities: EntitiesPayload, { input }: SystemArgs<any>) => {
     const events =
       input.filter((x) =>
         ["onMouseDown", "onMouseUp", "onMouseMove"].includes(x.name)
@@ -13,33 +53,40 @@ export const handleDrag = (() => {
 
     events.forEach(({ name, payload }) => {
       if (name === "onMouseDown") {
-        const entityId = payload?.target.getAttribute("data-entity-id");
-        targetEntityId = entityId;
+        const target = payload?.target as HTMLElement;
+        const entityId = target.getAttribute("data-entity-id");
+        targetEntityId = entityId || "";
         const entity = entities.gameObjects.nodes.find(
           ({ id }) => id === targetEntityId
         );
-        if (entity) {
+        if (entity && entity.draggable && entity.position) {
           entity.draggable.isBeingDragged = true;
+          const { clientX, clientY } = extractClientCoordinates(payload);
           dragOffset = {
-            x: payload?.clientX - payload?.target.getBoundingClientRect().left,
-            y: payload?.clientY - payload?.target.getBoundingClientRect().top,
+            x: clientX - target.getBoundingClientRect().left,
+            y: clientY - target.getBoundingClientRect().top,
           };
         }
       } else if (targetEntityId && name === "onMouseMove") {
         const entity = entities.gameObjects.nodes.find(
           ({ id }) => id === targetEntityId
         );
-        entity.position.x = payload?.pageX - dragOffset.x;
-        entity.position.y = payload?.pageY - dragOffset.y;
+        if (entity && entity.draggable && entity.position) {
+          const { pageX, pageY } = extractPageCoordinates(payload);
+          entity.position.x = pageX - dragOffset.x;
+          entity.position.y = pageY - dragOffset.y;
+        }
       } else if (targetEntityId && name === "onMouseUp") {
         const entity = entities.gameObjects.nodes.find(
           ({ id }) => id === targetEntityId
         );
         targetEntityId = "";
         dragOffset = { x: 0, y: 0 };
-        entity.draggable.isBeingDragged = false;
+        if (entity && entity.draggable && entity.position) {
+          entity.draggable.isBeingDragged = false;
+        }
       }
-    })
+    });
 
     return entities;
   };
