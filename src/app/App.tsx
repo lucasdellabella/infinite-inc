@@ -38,12 +38,6 @@ export interface EntitiesPayload {
 }
 
 function App() {
-  useEffect(() => {
-    async function c() {
-      await combine("cheese", "frankenstein");
-    }
-    c();
-  }, []);
   const [nodes] = useState<GameObject[]>(initialData);
   return (
     <GameEngine
