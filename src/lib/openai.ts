@@ -1,11 +1,10 @@
-import OpenAI from "openai"
-
+import OpenAI from "openai";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, // This is the default and can be omitted
-})
+});
 
-export default async function run(
+export async function run(
   prompt: string,
   systemPrompt: string
 ): Promise<string | null> {
@@ -15,10 +14,12 @@ export default async function run(
       { role: "user", content: prompt },
     ],
     model: "gpt-3.5-turbo",
-  })
+  });
 
-  const [choice] = chatCompletion?.choices || []
-  const { message } = choice || {}
-  const { content } = message || {}
-  return content
+  const [choice] = chatCompletion?.choices || [];
+  const { message } = choice || {};
+  const { content } = message || {};
+  return content;
 }
+
+export default { run };
