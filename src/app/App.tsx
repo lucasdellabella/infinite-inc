@@ -8,13 +8,8 @@ import { Button } from "@/components/ui/button";
 import Nodes from "./renderers/Nodes";
 import { handleDrag } from "./systems/handleDrag";
 import { moveNodes } from "./systems/moveNodes";
-
-interface Node {
-  x: number;
-  y: number;
-  id: string;
-  isBeingDragged?: boolean;
-}
+import { handleEmits } from "./systems/handleEmits";
+import initialData from "./initialData";
 
 interface ComponentDictionary {
   position?: { x: number; y: number };
@@ -24,6 +19,7 @@ interface ComponentDictionary {
 export interface GameObject extends ComponentDictionary {
   id: string;
   name: string;
+  emoji: string;
 }
 
 export interface EntitiesPayload {
@@ -31,14 +27,14 @@ export interface EntitiesPayload {
 }
 
 function App() {
-  const [nodes] = useState<GameObject[]>([]);
+  const [nodes] = useState<GameObject[]>(initialData);
   return (
     <GameEngine
       style={{
         width: "100vw",
         height: "100vh",
       }}
-      systems={[moveNodes, handleDrag]}
+      systems={[moveNodes, handleDrag, handleEmits]}
       entities={{
         gameObjects: { nodes: nodes, renderer: Nodes },
       }}
@@ -48,8 +44,9 @@ function App() {
         className="border absolute bottom-2 left-2"
         onClick={() => {
           nodes.push({
-            name: "TEST",
+            name: "RECT",
             id: uuidv4(),
+            emoji: "🟥",
             position: {
               x: 0,
               y: Math.random() * 500,
