@@ -19,20 +19,5 @@ export async function combine(
     });
 }
 
-export async function labelEmoji(label: string): Promise<string | null> {
-  return await axios
-    .get(`/api/emoji?label=${label}`)
-    .then(function (response) {
-      // handle success
-      console.log(response);
-      const res = response.data;
-      return res as string;
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error);
-      return null;
-    });
-}
 
-export default { combine, labelEmoji };
+export default { combine };
