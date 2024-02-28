@@ -52,6 +52,14 @@ export async function GET(request: Request) {
 }
 
 export async function promptEmoji(label: string): Promise<string | null> {
+  const { data } =
+    (await supabase.from("combos").select("emojis").eq("res_name1", label)) ||
+    {};
+
+  const [row] = data || [];
+  const { emojis: existing } = row || {};
+  if (existing) return existing;
+
   const output = await run(
     `What emoji best represents this idea? No more than 3 emojis, prefer 1 emoji:
     
@@ -72,6 +80,22 @@ export async function promptEmoji(label: string): Promise<string | null> {
 }
 
 export async function prompt(name1: string, name2: string): Promise<string> {
+  const [n1, n2] =
+    [name1, name2]
+      .map((n) => n.replaceAll(" ", "_").replace(/\W/g, "").toLowerCase())
+      .sort() || [];
+
+  const { data } =
+    (await supabase
+      .from("combos")
+      .select("res_name1")
+      .eq("name1", n1)
+      .eq("name2", n2)) || [];
+
+  const [row] = data || [];
+  const { res_name1: existing } = row || {};
+  if (existing) return existing;
+
   const prompt = [name1, name2, "?"].join("|");
 
   const output = await run(prompt, infiniteCraftPrompt);
@@ -81,10 +105,6 @@ export async function prompt(name1: string, name2: string): Promise<string> {
 
   const r1 = res_name1.replaceAll(" ", "_").replace(/\W/g, "").toLowerCase();
 
-  const [n1, n2] =
-    [name1, name2]
-      .map((n) => n.replaceAll(" ", "_").replace(/\W/g, "").toLowerCase())
-      .sort() || [];
   if (supabase) {
     const { error } = await supabase
       ?.from("combos")
@@ -383,7 +403,6 @@ Question>Camel|Priest|?
 Answer>Camel|Priest|Caravan
 
 ONLY RESPOND WITH A SINGLE RECIPE THAT MATCHES THE PROMPT!!!`;
-
 
 export type Json =
   | string
