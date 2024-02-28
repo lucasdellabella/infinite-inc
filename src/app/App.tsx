@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GameEngine } from "../gameEngine";
 import { v4 as uuidv4 } from "uuid";
 import "../index.css";
-
 import { Button } from "@/components/ui/button";
 
 import Nodes from "./renderers/Nodes";
@@ -17,6 +16,7 @@ import { moveNodes } from "./systems/moveNodes";
 // }
 import { handleEmits } from "./systems/handleEmits";
 import initialData from "./initialData";
+import { combine } from "../lib/httpClient";
 
 interface ComponentDictionary {
   position?: { x: number; y: number };
@@ -38,6 +38,12 @@ export interface EntitiesPayload {
 
 function App() {
   const [nodes] = useState<GameObject[]>(initialData);
+  useEffect(() => {
+    async function test() {
+      await combine("bat", "rat");
+    }
+    test();
+  });
   return (
     <GameEngine
       style={{
