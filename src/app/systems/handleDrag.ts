@@ -8,14 +8,17 @@ function extractPageCoordinates(event: Input): {
   let pageX = 0,
     pageY = 0;
 
-  if (event instanceof MouseEvent) {
+  // Check for mouse events
+  if ("pageX" in event && "pageY" in event) {
     pageX = event.pageX;
     pageY = event.pageY;
-  } else if (event instanceof TouchEvent && event.touches.length > 0) {
+  }
+  // Check for touch events, using the first touch point
+  else if ("touches" in event && event.touches.length > 0) {
     pageX = event.touches[0].pageX;
     pageY = event.touches[0].pageY;
   } else {
-    throw new Error(`${JSON.stringify(event)} did not match valid event types`);
+    throw new Error(`did not match valid event types`);
   }
 
   return { pageX, pageY };
@@ -28,14 +31,17 @@ function extractClientCoordinates(event: Input): {
   let clientX = 0,
     clientY = 0;
 
-  if (event instanceof MouseEvent) {
+  // Check for mouse events
+  if ("clientX" in event && "clientY" in event) {
     clientX = event.clientX;
     clientY = event.clientY;
-  } else if (event instanceof TouchEvent && event.touches.length > 0) {
+  }
+  // Check for touch events
+  else if ("touches" in event && event.touches.length > 0) {
     clientX = event.touches[0].clientX;
     clientY = event.touches[0].clientY;
   } else {
-    throw new Error(`${JSON.stringify(event)} did not match valid event types`);
+    throw new Error(`did not match valid event types`);
   }
 
   return { clientX, clientY };
