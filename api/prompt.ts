@@ -1,8 +1,8 @@
-import * as openai from "../src/lib/openai.ts";
+import * as openai from "./openai.ts";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import querystring from "node:querystring";
-import { infiniteCraftPrompt } from "../src/lib/serverPrompts.ts";
-import { Database } from "../src/lib/supabase.ts";
+import { infiniteCraftPrompt } from "./serverPrompts.ts";
+import { Database } from "./supabase.ts";
 
 // https://vercel.com/docs/functions/quickstart#create-an-api-route
 
