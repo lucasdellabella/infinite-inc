@@ -5,7 +5,6 @@ interface Props {
 }
 
 const Nodes = ({ nodes }: Props) => {
-  const size = 100;
   return (
     <div>
       {nodes.map(({ id, emoji, name, position }) => {

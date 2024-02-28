@@ -31,7 +31,10 @@ export interface GameObject extends ComponentDictionary {
 }
 
 export interface EntitiesPayload {
-  gameObjects: { nodes: GameObject[]; renderer: JSX.Element };
+  gameObjects: {
+    nodes: GameObject[];
+    renderer: ({ nodes }: { nodes: GameObject[] }) => JSX.Element;
+  };
 }
 
 function App() {

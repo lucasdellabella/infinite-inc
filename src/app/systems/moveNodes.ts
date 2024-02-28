@@ -3,7 +3,7 @@ import { SystemArgs } from "./utils";
 
 export const moveNodes = (
   entities: EntitiesPayload,
-  { input, time }: SystemArgs<any>
+  { time }: SystemArgs<any>
 ) => {
   entities.gameObjects.nodes.forEach((node) => {
     // Operate on only applicable nodes
