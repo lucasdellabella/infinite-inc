@@ -1,8 +1,14 @@
 {
+  "ts-node": {
+    "compilerOptions": {
+     "module": "es2015",
+      "moduleResolution": "node"
+    }
+  },
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["ES2020", "DOM", "DOM.Iterable","ES2021.String"],
     "module": "ESNext",
     "skipLibCheck": true,
     "baseUrl": ".",
