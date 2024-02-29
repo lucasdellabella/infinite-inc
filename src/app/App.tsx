@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { GameEngine } from "../gameEngine";
 import "../index.css";
 
@@ -7,7 +7,6 @@ import Nodes from "./renderers/Nodes";
 import { handleDrag } from "./systems/handleDrag";
 
 import { handleDisappears } from "./systems/handleDisappear";
-import { combine } from "../lib/httpClient";
 import { createCow, createFarmer, createFire } from "./gameObjectConstructors";
 import initialData from "./initialData";
 import { handleEmits } from "./systems/handleEmits";
@@ -67,12 +66,6 @@ function App() {
     height: window.innerHeight,
   });
   const [nodes] = useState<GameObject[]>(initialData);
-  useEffect(() => {
-    async function test() {
-      await combine("bat", "rat");
-    }
-    test();
-  });
   return (
     <GameEngine
       style={{
