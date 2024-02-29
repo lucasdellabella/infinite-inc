@@ -1,44 +1,44 @@
-import { useState, useEffect } from "react";
-import { GameEngine } from "../gameEngine";
-import { v4 as uuidv4 } from "uuid";
-import "../index.css";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { GameEngine } from "../gameEngine";
+import "../index.css";
 
 import Nodes from "./renderers/Nodes";
 import { handleDrag } from "./systems/handleDrag";
-
-// interface Node {
-//   x: number;
-//   y: number;
-//   id: string;
-//   isBeingDragged?: boolean;
-// }
-import { handleEmits } from "./systems/handleEmits";
-import initialData from "./initialData";
 import { combine } from "../lib/httpClient";
-import { Time } from "./systems/utils";
+import { createCow, createFarmer, createFire } from "./gameObjectConstructors";
+import initialData from "./initialData";
+import { handleEmits } from "./systems/handleEmits";
 import handleMovementPattern from "./systems/handleMovementPattern";
 import handleVelocity from "./systems/handleVelocity";
-import snakeUpwards from "./systems/movementPattern/snakeUpwards";
-import farmerBackAndForth from "./systems/movementPattern/farmerBackAndForth";
-import meander from "./systems/movementPattern/meander";
+import { Time } from "./systems/utils";
+
+export type MovementPatternComponent = {
+  name: "durdle" | "snake_upwards" | "farmer__back_and_forth" | "meander";
+  update: (time: Time, entity: GameObject) => void;
+};
+
+export type VelocityComponent = {
+  vx: number;
+  vy: number;
+};
+
+export type EmitsComponent = {
+  period: number;
+  timeLeft: number;
+  createGameObject: (position: { x: number; y: number }) => GameObject;
+};
+
+export type DraggableComponent = { isBeingDragged: boolean };
+
+export type PositionComponent = { x: number; y: number };
 
 interface ComponentDictionary {
-  position?: { x: number; y: number };
-  draggable?: { isBeingDragged: boolean };
-  movementPattern?: {
-    name: "durdle" | "snake_upwards" | "farmer__back_and_forth" | "meander";
-    update: (time: Time, entity: GameObject) => void;
-  };
-  velocity?: {
-    vx: number;
-    vy: number;
-  };
-  emits?: {
-    period: number;
-    timeLeft: number;
-    createGameObject: (position: { x: number; y: number }) => GameObject;
-  };
+  position?: PositionComponent;
+  draggable?: DraggableComponent;
+  movementPattern?: MovementPatternComponent;
+  velocity?: VelocityComponent;
+  emits?: EmitsComponent;
 }
 
 export interface GameObject extends ComponentDictionary {
@@ -82,23 +82,12 @@ function App() {
         <Button
           size="lg"
           onClick={() => {
-            nodes.push({
-              name: "Fire",
-              id: uuidv4(),
-              emoji: "🔥",
-              position: {
+            nodes.push(
+              createFire({
                 x: 200 + Math.random() * screen.width - 300,
                 y: screen.height * (4 / 5),
-              },
-              velocity: {
-                vx: 10,
-                vy: 0,
-              },
-              draggable: {
-                isBeingDragged: false,
-              },
-              movementPattern: snakeUpwards(),
-            });
+              })
+            );
           }}
         >
           Add <span className="text-xl ml-2">🔥</span>
@@ -107,36 +96,12 @@ function App() {
           className="border"
           size="lg"
           onClick={() => {
-            nodes.push({
-              name: "Cow",
-              id: uuidv4(),
-              emoji: "🐮",
-              position: {
+            nodes.push(
+              createCow({
                 x: 50 + Math.random() * screen.width - 200,
                 y: 50 + Math.random() * screen.height - 200,
-              },
-              velocity: {
-                vx: 10,
-                vy: 0,
-              },
-              draggable: {
-                isBeingDragged: false,
-              },
-              movementPattern: meander(),
-              emits: {
-                timeLeft: 2000,
-                period: 15000,
-                createGameObject: (position) => {
-                  return {
-                    id: uuidv4(),
-                    name: "Milk",
-                    emoji: "🥛",
-                    position,
-                    draggable: { isBeingDragged: false },
-                  };
-                },
-              },
-            });
+              })
+            );
           }}
         >
           Add <span className="text-xl ml-2">🐮</span>
@@ -145,36 +110,12 @@ function App() {
           className="border"
           size="lg"
           onClick={() => {
-            nodes.push({
-              name: "Farmer",
-              id: uuidv4(),
-              emoji: "👩‍🌾",
-              position: {
+            nodes.push(
+              createFarmer({
                 x: 50 + Math.random() * screen.width - 200,
                 y: 50 + Math.random() * screen.height - 400,
-              },
-              velocity: {
-                vx: 10,
-                vy: 0,
-              },
-              draggable: {
-                isBeingDragged: false,
-              },
-              movementPattern: farmerBackAndForth(),
-              emits: {
-                timeLeft: 0,
-                period: 5000,
-                createGameObject: (position) => {
-                  return {
-                    id: uuidv4(),
-                    name: "Seed",
-                    emoji: "🌱",
-                    position,
-                    draggable: { isBeingDragged: false },
-                  };
-                },
-              },
-            });
+              })
+            );
           }}
         >
           Add <span className="text-xl ml-2">👩‍🌾</span>
