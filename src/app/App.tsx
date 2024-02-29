@@ -34,6 +34,11 @@ interface ComponentDictionary {
     vx: number;
     vy: number;
   };
+  emits?: {
+    period: number;
+    timeLeft: number;
+    createGameObject: (position: { x: number; y: number }) => GameObject;
+  };
 }
 
 export interface GameObject extends ComponentDictionary {
@@ -118,6 +123,19 @@ function App() {
                 isBeingDragged: false,
               },
               movementPattern: durdle(),
+              emits: {
+                timeLeft: 2000,
+                period: 15000,
+                createGameObject: (position) => {
+                  return {
+                    id: uuidv4(),
+                    name: "Milk",
+                    emoji: "🥛",
+                    position,
+                    draggable: { isBeingDragged: false },
+                  };
+                },
+              },
             });
           }}
         >
