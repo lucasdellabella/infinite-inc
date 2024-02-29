@@ -96,9 +96,9 @@ export const handleDrag = (() => {
 
         combine(draggedEntity.name, targetEntity.name).then((data) => {
           const { name, emoji } = data || {};
+          nodes.splice(index, 1);
+          nodes.splice(draggedEntityIndex, 1);
           if (name && emoji && targetEntity.position) {
-            nodes.splice(index, 1);
-            nodes.splice(draggedEntityIndex, 1);
             nodes.push({
               ...createDefaultGameObject(),
               name,
