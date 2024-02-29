@@ -27,7 +27,7 @@ const Nodes = ({ nodes }: Props) => {
             <span className="text-3xl cursor-pointer pointer-events-none">
               {emoji}
             </span>
-            <span className="text-xl ml-2 opacity-0 transition-all group-hover:opacity-100">
+            <span className="text-xl ml-2 opacity-0 transition-all pointer-events-none group-hover:opacity-100">
               {name}
             </span>
           </div>
