@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 
 import Nodes from "./renderers/Nodes";
 import { handleDrag } from "./systems/handleDrag";
-import { moveNodes } from "./systems/moveNodes";
 
 // interface Node {
 //   x: number;
@@ -17,10 +16,24 @@ import { moveNodes } from "./systems/moveNodes";
 import { handleEmits } from "./systems/handleEmits";
 import initialData from "./initialData";
 import { combine } from "../lib/httpClient";
+import { Time } from "./systems/utils";
+import handleMovementPattern from "./systems/handleMovementPattern";
+import handleVelocity from "./systems/handleVelocity";
+import snakeUpwards from "./systems/movementPattern/snakeUpwards";
+import durdle from "./systems/movementPattern/durdle";
+import farmerBackAndForth from "./systems/movementPattern/farmerBackAndForth";
 
 interface ComponentDictionary {
   position?: { x: number; y: number };
   draggable?: { isBeingDragged: boolean };
+  movementPattern?: {
+    name: "durdle" | "snake_upwards" | "farmer__back_and_forth";
+    update: (time: Time, entity: GameObject) => void;
+  };
+  velocity?: {
+    vx: number;
+    vy: number;
+  };
 }
 
 export interface GameObject extends ComponentDictionary {
@@ -50,31 +63,88 @@ function App() {
         width: "100vw",
         height: "100vh",
       }}
-      systems={[moveNodes, handleDrag, handleEmits]}
+      systems={[handleDrag, handleEmits, handleVelocity, handleMovementPattern]}
       entities={{
         gameObjects: { nodes: nodes, renderer: Nodes },
       }}
       className="relative bg-blue-50"
     >
-      <Button
-        className="border absolute bottom-2 left-2"
-        onClick={() => {
-          nodes.push({
-            name: "RECT",
-            id: uuidv4(),
-            emoji: "🟥",
-            position: {
-              x: 0,
-              y: Math.random() * 500,
-            },
-            draggable: {
-              isBeingDragged: false,
-            },
-          });
-        }}
-      >
-        Add Node
-      </Button>
+      <div className="absolute items-center bottom-2 left-2 flex space-x-2">
+        <Button
+          size="lg"
+          onClick={() => {
+            nodes.push({
+              name: "Fire",
+              id: uuidv4(),
+              emoji: "🔥",
+              position: {
+                x: 550 + Math.random() * 400,
+                y: 700,
+              },
+              velocity: {
+                vx: 10,
+                vy: 0,
+              },
+              draggable: {
+                isBeingDragged: false,
+              },
+              movementPattern: snakeUpwards(),
+            });
+          }}
+        >
+          Add <span className="text-xl ml-2">🔥</span>
+        </Button>
+        <Button
+          className="border"
+          size="lg"
+          onClick={() => {
+            nodes.push({
+              name: "Cow",
+              id: uuidv4(),
+              emoji: "🐮",
+              position: {
+                x: 200 + Math.random() * 300,
+                y: 200 + Math.random() * 500,
+              },
+              velocity: {
+                vx: 10,
+                vy: 0,
+              },
+              draggable: {
+                isBeingDragged: false,
+              },
+              movementPattern: durdle(),
+            });
+          }}
+        >
+          Add <span className="text-xl ml-2">🐮</span>
+        </Button>
+        <Button
+          className="border"
+          size="lg"
+          onClick={() => {
+            nodes.push({
+              name: "Farmer",
+              id: uuidv4(),
+              emoji: "👩‍🌾",
+              position: {
+                x: 100,
+                y: 100 + 100 * (Math.random() * 3),
+              },
+              velocity: {
+                vx: 10,
+                vy: 0,
+              },
+              draggable: {
+                isBeingDragged: false,
+              },
+              movementPattern: farmerBackAndForth(),
+            });
+          }}
+        >
+          Add <span className="text-xl ml-2">👩‍🌾</span>
+        </Button>
+      </div>
     </GameEngine>
   );
 }

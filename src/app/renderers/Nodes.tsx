@@ -23,7 +23,7 @@ const Nodes = ({ nodes }: Props) => {
               transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
             }}
           >
-            <div className="absolute z-[-1] top-0 left-0 bg-white border border-slate-50 pointer-events-none w-full h-full rounded-md cursor-pointer opacity-0 transition-all group-hover:opacity-100"></div>
+            <div className="absolute z-[-1] top-0 left-0 bg-transparent border border-slate-900 pointer-events-none w-full h-full rounded-md cursor-pointer opacity-0 transition-all group-hover:opacity-100"></div>
             <span className="text-3xl cursor-pointer pointer-events-none">
               {emoji}
             </span>
