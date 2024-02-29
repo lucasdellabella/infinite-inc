@@ -20,14 +20,14 @@ import { Time } from "./systems/utils";
 import handleMovementPattern from "./systems/handleMovementPattern";
 import handleVelocity from "./systems/handleVelocity";
 import snakeUpwards from "./systems/movementPattern/snakeUpwards";
-import durdle from "./systems/movementPattern/durdle";
 import farmerBackAndForth from "./systems/movementPattern/farmerBackAndForth";
+import meander from "./systems/movementPattern/meander";
 
 interface ComponentDictionary {
   position?: { x: number; y: number };
   draggable?: { isBeingDragged: boolean };
   movementPattern?: {
-    name: "durdle" | "snake_upwards" | "farmer__back_and_forth";
+    name: "durdle" | "snake_upwards" | "farmer__back_and_forth" | "meander";
     update: (time: Time, entity: GameObject) => void;
   };
   velocity?: {
@@ -117,7 +117,7 @@ function App() {
               draggable: {
                 isBeingDragged: false,
               },
-              movementPattern: durdle(),
+              movementPattern: meander(),
             });
           }}
         >
