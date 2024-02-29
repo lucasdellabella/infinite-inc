@@ -15,6 +15,9 @@ export const createMilk = (position: PositionComponent) => {
     name: "Milk",
     emoji: "🥛",
     position,
+    disappears: {
+      timeLeft: 5000
+    }
   };
 };
 
