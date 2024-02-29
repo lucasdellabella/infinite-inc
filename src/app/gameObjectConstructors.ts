@@ -4,7 +4,7 @@ import meander from "./systems/movementPattern/meander";
 import snakeUpwards from "./systems/movementPattern/snakeUpwards";
 import { PositionComponent } from "./App";
 
-const createDefaultGameObject = () => ({
+export const createDefaultGameObject = () => ({
   id: uuidv4(),
   draggable: { isBeingDragged: false },
 });
