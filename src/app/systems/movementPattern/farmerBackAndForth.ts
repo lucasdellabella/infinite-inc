@@ -12,7 +12,7 @@ const farmerBackAndForth = () => {
 
   return {
     name: "farmer__back_and_forth" as const,
-    update: (time: Time, entity: GameObject) => {
+    update: (_time: Time, entity: GameObject) => {
       if (entity.velocity && entity.position) {
         if (!startingPosition) {
           startingPosition = { ...entity.position };
