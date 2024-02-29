@@ -50,6 +50,10 @@ function extractClientCoordinates(event: Input): {
 export const handleDrag = (() => {
   let dragOffset = { x: 0, y: 0 };
   let targetEntityId = "";
+  const resetDragState = () => {
+    dragOffset = { x: 0, y: 0 };
+    targetEntityId = "";
+  };
 
   return (entities: EntitiesPayload, { input }: SystemArgs<any>) => {
     const events =
@@ -57,14 +61,15 @@ export const handleDrag = (() => {
         ["onMouseDown", "onMouseUp", "onMouseMove"].includes(x.name)
       ) || [];
 
+    const getEntityWithId = (targetEntityId: string) => {
+      return entities.gameObjects.nodes.find(({ id }) => id === targetEntityId);
+    };
+
     events.forEach(({ name, payload }) => {
       if (name === "onMouseDown") {
         const target = payload?.target as HTMLElement;
-        const entityId = target.getAttribute("data-entity-id");
-        targetEntityId = entityId || "";
-        const entity = entities.gameObjects.nodes.find(
-          ({ id }) => id === targetEntityId
-        );
+        targetEntityId = target.getAttribute("data-entity-id") || "";
+        const entity = getEntityWithId(targetEntityId);
         if (entity && entity.draggable && entity.position) {
           entity.draggable.isBeingDragged = true;
           const { clientX, clientY } = extractClientCoordinates(payload);
@@ -74,20 +79,15 @@ export const handleDrag = (() => {
           };
         }
       } else if (targetEntityId && name === "onMouseMove") {
-        const entity = entities.gameObjects.nodes.find(
-          ({ id }) => id === targetEntityId
-        );
+        const entity = getEntityWithId(targetEntityId);
         if (entity && entity.draggable && entity.position) {
           const { pageX, pageY } = extractPageCoordinates(payload);
           entity.position.x = pageX - dragOffset.x;
           entity.position.y = pageY - dragOffset.y;
         }
       } else if (targetEntityId && name === "onMouseUp") {
-        const entity = entities.gameObjects.nodes.find(
-          ({ id }) => id === targetEntityId
-        );
-        targetEntityId = "";
-        dragOffset = { x: 0, y: 0 };
+        const entity = getEntityWithId(targetEntityId);
+        resetDragState();
         if (entity && entity.draggable && entity.position) {
           entity.draggable.isBeingDragged = false;
         }
