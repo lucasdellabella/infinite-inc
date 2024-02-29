@@ -50,6 +50,10 @@ export interface EntitiesPayload {
 }
 
 function App() {
+  const [screen] = useState<{ width: number; height: number }>({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
   const [nodes] = useState<GameObject[]>(initialData);
   useEffect(() => {
     async function test() {
@@ -78,8 +82,8 @@ function App() {
               id: uuidv4(),
               emoji: "🔥",
               position: {
-                x: 550 + Math.random() * 400,
-                y: 700,
+                x: 200 + Math.random() * screen.width - 300,
+                y: screen.height * (4 / 5),
               },
               velocity: {
                 vx: 10,
@@ -103,8 +107,8 @@ function App() {
               id: uuidv4(),
               emoji: "🐮",
               position: {
-                x: 200 + Math.random() * 300,
-                y: 200 + Math.random() * 500,
+                x: 50 + Math.random() * screen.width - 200,
+                y: 50 + Math.random() * screen.height - 200,
               },
               velocity: {
                 vx: 10,
@@ -128,8 +132,8 @@ function App() {
               id: uuidv4(),
               emoji: "👩‍🌾",
               position: {
-                x: 100,
-                y: 100 + 100 * (Math.random() * 3),
+                x: 50 + Math.random() * screen.width - 200,
+                y: 50 + Math.random() * screen.height - 400,
               },
               velocity: {
                 vx: 10,
