@@ -94,10 +94,11 @@ export const handleDrag = (() => {
       ) {
         // A drop has occurred, the dragged entity's center is within the bounds of the target entity
 
+        nodes.splice(index, 1);
+        nodes.splice(draggedEntityIndex, 1);
         combine(draggedEntity.name, targetEntity.name).then((data) => {
           const { name, emoji } = data || {};
-          nodes.splice(index, 1);
-          nodes.splice(draggedEntityIndex, 1);
+          
           if (name && emoji && targetEntity.position) {
             nodes.push({
               ...createDefaultGameObject(),
