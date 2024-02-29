@@ -16,7 +16,7 @@ const Nodes = ({ nodes }: Props) => {
           <div
             key={id}
             data-entity-id={id}
-            className="absolute group flex items-center py-2 px-4 left-0 top-0 select-none"
+            className="absolute group flex items-center py-2 px-4 left-0 top-0 select-none cursor-pointer"
             style={{
               minWidth: "60px",
               minHeight: "20px",

@@ -7,7 +7,7 @@ const handleMovementPattern = (
 ) => {
   entities.gameObjects.nodes.forEach((node) => {
     // Operate on only applicable nodes
-    if (node.movementPattern) {
+    if (node.movementPattern && !node.draggable?.isBeingDragged) {
       node.movementPattern.update(time, node);
     }
   });
