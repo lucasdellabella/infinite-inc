@@ -57,7 +57,10 @@ export const handleDrag = (() => {
     targetEntityId = "";
   };
 
-  const checkForEntityDrop = (entities, draggedEntityIndex) => {
+  const checkForEntityDrop = (
+    entities: EntitiesPayload,
+    draggedEntityIndex: number
+  ) => {
     const { nodes } = entities.gameObjects || {};
     const draggedEntity = nodes[draggedEntityIndex];
     if (!draggedEntity) return;
@@ -65,8 +68,8 @@ export const handleDrag = (() => {
     // The exact way to calculate the center or relevant point of the entity
     // will depend on your entity structure and hitbox definitions.
     const draggedEntityCenter = {
-      x: draggedEntity.position.x + 50,
-      y: draggedEntity.position.y + 40,
+      x: draggedEntity?.position?.x || 0 + 50,
+      y: draggedEntity?.position?.y || 0 + 40,
     };
 
     // Check collision with other entities
@@ -93,14 +96,16 @@ export const handleDrag = (() => {
 
         combine(draggedEntity.name, targetEntity.name).then((data) => {
           const { name, emoji } = data || {};
-          nodes.splice(index, 1);
-          nodes.splice(draggedEntityIndex, 1)
-          nodes.push({
-            ...createDefaultGameObject(),
-            name,
-            emoji,
-            position: { ...targetEntity.position },
-          });
+          if (name && emoji && targetEntity.position) {
+            nodes.splice(index, 1);
+            nodes.splice(draggedEntityIndex, 1);
+            nodes.push({
+              ...createDefaultGameObject(),
+              name,
+              emoji,
+              position: { ...targetEntity.position },
+            });
+          }
         }) || {};
       }
     });
