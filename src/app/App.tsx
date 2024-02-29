@@ -161,6 +161,19 @@ function App() {
                 isBeingDragged: false,
               },
               movementPattern: farmerBackAndForth(),
+              emits: {
+                timeLeft: 0,
+                period: 5000,
+                createGameObject: (position) => {
+                  return {
+                    id: uuidv4(),
+                    name: "Seed",
+                    emoji: "🌱",
+                    position,
+                    draggable: { isBeingDragged: false },
+                  };
+                },
+              },
             });
           }}
         >
