@@ -1,4 +1,5 @@
 import axios from "axios";
+import { capitalizeFirstLetter } from "../utils/string";
 
 export async function combine(
   name1: string,
@@ -18,7 +19,14 @@ export async function combine(
       const res = response?.data;
       const [name, emoji] = res || [];
 
-      return { name, emoji };
+      return {
+        name: name
+          .replaceAll("_", " ")
+          .split(" ")
+          .map(capitalizeFirstLetter)
+          .join(" "),
+        emoji,
+      };
     })
     .catch(function (error) {
       // handle error
