@@ -15,7 +15,6 @@ import {
   deserializeGameObject,
 } from "./gameObjectConstructors";
 import initialData from "./initialData";
-import debug from "./systems/debug";
 import { handleDisappears } from "./systems/handleDisappear";
 import { handleEmits } from "./systems/handleEmits";
 import handleMovementPattern from "./systems/handleMovementPattern";
@@ -82,7 +81,7 @@ function App() {
   useEffect(() => {
     const rawState = localStorage.getItem("gameState");
     if (rawState) {
-      const gameState = rawState ? JSON.parse(rawState).filter((x) => x) : null;
+      const gameState = rawState ? JSON.parse(rawState) : null;
       const entities: GameObject[] = gameState.map(deserializeGameObject);
       nodes.length = 0;
       entities.forEach((e) => nodes.push(e));
@@ -107,7 +106,6 @@ function App() {
         handleMovementPattern,
         handleDisappears,
         handleOutOfBounds,
-        debug,
       ]}
       entities={{
         gameObjects: { nodes: nodes, renderer: Nodes },
