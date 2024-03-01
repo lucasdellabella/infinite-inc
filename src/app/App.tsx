@@ -6,18 +6,27 @@ import "../index.css";
 import Nodes from "./renderers/Nodes";
 import { handleDrag } from "./systems/handleDrag";
 
-import { handleDisappears } from "./systems/handleDisappear";
 import { combine } from "../lib/httpClient";
-import { createCow, createFarmer, createFire } from "./gameObjectConstructors";
+import {
+  createCow,
+  createFarmer,
+  createFire,
+  deserializeGameObject,
+} from "./gameObjectConstructors";
 import initialData from "./initialData";
+import debug from "./systems/debug";
+import { handleDisappears } from "./systems/handleDisappear";
 import { handleEmits } from "./systems/handleEmits";
 import handleMovementPattern from "./systems/handleMovementPattern";
 import handleVelocity from "./systems/handleVelocity";
 import { Time } from "./systems/utils";
+import localStorageIntervalSaveSystem from "./systems/localStorageIntervalSaveSystem";
 
 export type MovementPatternComponent = {
   name: "durdle" | "snake_upwards" | "farmer__back_and_forth" | "meander";
   update: (time: Time, entity: GameObject) => void;
+  getState: () => object;
+  setState: (data: object) => void;
 };
 
 export type VelocityComponent = {
@@ -28,30 +37,31 @@ export type VelocityComponent = {
 export type EmitsComponent = {
   period: number;
   timeLeft: number;
-  createGameObject: (position: { x: number; y: number }) => GameObject;
+  emittedObjectName: string;
 };
 
 export type DisappearsComponent = {
   timeLeft: number;
-}
+};
 
 export type DraggableComponent = { isBeingDragged: boolean };
 
 export type PositionComponent = { x: number; y: number };
 
-interface ComponentDictionary {
+export interface ComponentDictionary {
   position?: PositionComponent;
   draggable?: DraggableComponent;
   movementPattern?: MovementPatternComponent;
   velocity?: VelocityComponent;
   emits?: EmitsComponent;
-  disappears?: DisappearsComponent
+  disappears?: DisappearsComponent;
 }
 
 export interface GameObject extends ComponentDictionary {
   id: string;
   name: string;
   emoji: string;
+  serialize: () => string;
 }
 
 export interface EntitiesPayload {
@@ -68,6 +78,16 @@ function App() {
   });
   const [nodes] = useState<GameObject[]>(initialData);
   useEffect(() => {
+    const rawState = localStorage.getItem("gameState");
+    if (rawState) {
+      const gameState = rawState ? JSON.parse(rawState).filter((x) => x) : null;
+      const entities: GameObject[] = gameState.map(deserializeGameObject);
+      nodes.length = 0;
+      entities.forEach((e) => nodes.push(e));
+    }
+  }, [nodes]);
+
+  useEffect(() => {
     async function test() {
       await combine("bat", "rat");
     }
@@ -79,7 +99,15 @@ function App() {
         width: "100vw",
         height: "100vh",
       }}
-      systems={[handleDrag, handleEmits, handleVelocity, handleMovementPattern, handleDisappears]}
+      systems={[
+        localStorageIntervalSaveSystem,
+        handleDrag,
+        handleEmits,
+        handleVelocity,
+        handleMovementPattern,
+        handleDisappears,
+        debug,
+      ]}
       entities={{
         gameObjects: { nodes: nodes, renderer: Nodes },
       }}

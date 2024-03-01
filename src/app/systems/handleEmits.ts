@@ -1,7 +1,12 @@
-import { EntitiesPayload } from "../App";
+import { EntitiesPayload, GameObject } from "../App";
+import {
+  createCow,
+  createFarmer,
+  createFire,
+  createMilk,
+  createSeed,
+} from "../gameObjectConstructors";
 import { SystemArgs } from "./utils";
-
-
 
 const getRandomPosition = (baseX = 200, baseY = 200) => ({
   x: baseX + Math.random() * 10,
@@ -18,12 +23,32 @@ export const handleEmits = (
 
     emits.timeLeft -= time.delta;
     if (emits.timeLeft <= 0) {
-      const {period, createGameObject } = emits;
+      const { period, emittedObjectName } = emits;
       const { position } = node;
       const emitPosition = getRandomPosition(position?.x, position?.y);
-      entities.gameObjects.nodes.push(
-        createGameObject(emitPosition)
-      );
+      let newObject: GameObject | null = null;
+      switch (emittedObjectName) {
+        case "Seed":
+          newObject = createSeed(emitPosition);
+          break;
+        case "Cow":
+          newObject = createCow(emitPosition);
+          break;
+        case "Farmer":
+          newObject = createFarmer(emitPosition);
+          break;
+        case "Fire":
+          newObject = createFire(emitPosition);
+          break;
+        case "Milk":
+          newObject = createMilk(emitPosition);
+          break;
+        default:
+          break;
+      }
+      if (newObject) {
+        entities.gameObjects.nodes.push(newObject);
+      }
       emits.timeLeft = period;
     }
   });
