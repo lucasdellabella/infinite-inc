@@ -22,6 +22,7 @@ import handleOutOfBounds from "./systems/handleOutOfBounds";
 import handleVelocity from "./systems/handleVelocity";
 import localStorageIntervalSaveSystem from "./systems/localStorageIntervalSaveSystem";
 import { Time } from "./systems/utils";
+import { TrashIcon } from "lucide-react";
 
 export type MovementPatternComponent = {
   name: "durdle" | "snake_upwards" | "farmer__back_and_forth" | "meander";
@@ -153,6 +154,16 @@ function App() {
           }}
         >
           Add <span className="text-xl ml-2">👩‍🌾</span>
+        </Button>
+        <Button
+          className="border"
+          size="lg"
+          onClick={() => {
+            nodes.length = 0;
+          }}
+        >
+          Wipe board
+          <TrashIcon className="ml-2 w-5 h-5" />
         </Button>
       </div>
     </GameEngine>
