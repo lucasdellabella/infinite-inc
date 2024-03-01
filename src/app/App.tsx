@@ -24,6 +24,7 @@ import localStorageIntervalSaveSystem from "./systems/localStorageIntervalSaveSy
 import { Time } from "./systems/utils";
 import { TrashIcon } from "lucide-react";
 import { handleActive } from "./systems/handleActive";
+import { WrenchIcon } from "lucide-react";
 
 export type MovementPatternComponent = {
   name: "durdle" | "snake_upwards" | "farmer__back_and_forth" | "meander";
@@ -51,7 +52,7 @@ export type DraggableComponent = { isBeingDragged: boolean };
 
 export type PositionComponent = { x: number; y: number };
 
-export type IsActiveComponent = boolean
+export type IsActiveComponent = boolean;
 
 export interface ComponentDictionary {
   position?: PositionComponent;
@@ -104,7 +105,6 @@ function App() {
         top: 0,
       }}
       systems={[
-        
         handleActive,
         handleDrag,
         handleEmits,
@@ -113,7 +113,6 @@ function App() {
         handleDisappears,
         handleOutOfBounds,
         localStorageIntervalSaveSystem,
-        
       ]}
       entities={{
         gameObjects: { nodes: nodes, renderer: Nodes },
@@ -172,6 +171,12 @@ function App() {
           Wipe board
           <TrashIcon className="ml-2 w-5 h-5" />
         </Button>
+        {process.env.NODE_ENV === "development" && (
+          <Button disabled className="border bg-red-500" size="lg">
+            Development mode
+            <WrenchIcon className="ml-2 w-5 h-5" />
+          </Button>
+        )}
       </div>
     </GameEngine>
   );
