@@ -1,12 +1,13 @@
-import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { randInt } from "@/utils/rand";
 import { GameEngine } from "../gameEngine";
 import "../index.css";
 
 import Nodes from "./renderers/Nodes";
 import { handleDrag } from "./systems/handleDrag";
 
-import { combine } from "../lib/httpClient";
 import {
   createCow,
   createFarmer,
@@ -18,9 +19,10 @@ import debug from "./systems/debug";
 import { handleDisappears } from "./systems/handleDisappear";
 import { handleEmits } from "./systems/handleEmits";
 import handleMovementPattern from "./systems/handleMovementPattern";
+import handleOutOfBounds from "./systems/handleOutOfBounds";
 import handleVelocity from "./systems/handleVelocity";
-import { Time } from "./systems/utils";
 import localStorageIntervalSaveSystem from "./systems/localStorageIntervalSaveSystem";
+import { Time } from "./systems/utils";
 
 export type MovementPatternComponent = {
   name: "durdle" | "snake_upwards" | "farmer__back_and_forth" | "meander";
@@ -87,17 +89,15 @@ function App() {
     }
   }, [nodes]);
 
-  useEffect(() => {
-    async function test() {
-      await combine("bat", "rat");
-    }
-    test();
-  });
   return (
     <GameEngine
       style={{
         width: "100vw",
         height: "100vh",
+        position: "absolute",
+        overflow: "hidden",
+        left: 0,
+        top: 0,
       }}
       systems={[
         localStorageIntervalSaveSystem,
@@ -106,6 +106,7 @@ function App() {
         handleVelocity,
         handleMovementPattern,
         handleDisappears,
+        handleOutOfBounds,
         debug,
       ]}
       entities={{
@@ -119,7 +120,7 @@ function App() {
           onClick={() => {
             nodes.push(
               createFire({
-                x: 200 + Math.random() * screen.width - 300,
+                x: randInt(50, screen.width - 50),
                 y: screen.height * (4 / 5),
               })
             );
@@ -133,8 +134,8 @@ function App() {
           onClick={() => {
             nodes.push(
               createCow({
-                x: 50 + Math.random() * screen.width - 200,
-                y: 50 + Math.random() * screen.height - 200,
+                x: randInt(50, screen.width - 200),
+                y: randInt(50, screen.height - 200),
               })
             );
           }}
@@ -147,8 +148,8 @@ function App() {
           onClick={() => {
             nodes.push(
               createFarmer({
-                x: 50 + Math.random() * screen.width - 200,
-                y: 50 + Math.random() * screen.height - 400,
+                x: randInt(50, screen.width - 200),
+                y: randInt(50, screen.height - 400),
               })
             );
           }}

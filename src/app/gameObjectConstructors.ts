@@ -33,7 +33,7 @@ export const deserializeGameObject = (data: string) => {
   return newEntity;
 };
 
-const createDefaultGameObject = () => ({
+export const createDefaultGameObject = () => ({
   id: uuidv4(),
   draggable: { isBeingDragged: false },
   // NOTE: Must be old fn syntax for the this to work
