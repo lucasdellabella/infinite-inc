@@ -115,7 +115,7 @@ export const handleDrag = (() => {
   return (entities: EntitiesPayload, { input }: SystemArgs<any>) => {
     const events =
       input.filter((x) =>
-        ["onMouseDown", "onMouseUp", "onMouseMove"].includes(x.name)
+        ["onMouseDown", "onMouseUp", "onMouseMove", "onTouchEnd", "onTouchStart", "onTouchMove"].includes(x.name)
       ) || [];
 
     const getEntityWithId = (targetEntityId: string) => {
@@ -128,7 +128,7 @@ export const handleDrag = (() => {
     };
 
     events.forEach(({ name, payload }) => {
-      if (name === "onMouseDown") {
+      if (name === "onMouseDown" || name === "onTouchStart") {
         const target = payload?.target as HTMLElement;
         targetEntityId = target.getAttribute("data-entity-id") || "";
         const entity = getEntityWithId(targetEntityId);
@@ -140,14 +140,14 @@ export const handleDrag = (() => {
             y: clientY - target.getBoundingClientRect().top,
           };
         }
-      } else if (targetEntityId && name === "onMouseMove") {
+      } else if (targetEntityId && (name === "onMouseMove" || name === "onTouchMove")) {
         const entity = getEntityWithId(targetEntityId);
         if (entity && entity.draggable && entity.position) {
           const { pageX, pageY } = extractPageCoordinates(payload);
           entity.position.x = pageX - dragOffset.x;
           entity.position.y = pageY - dragOffset.y;
         }
-      } else if (targetEntityId && name === "onMouseUp") {
+      } else if (targetEntityId && (name === "onMouseUp" || name === "onTouchEnd")) {
         const entityIndex = getEntityIndex(targetEntityId);
         const entity = entities.gameObjects.nodes[entityIndex];
         resetDragState();

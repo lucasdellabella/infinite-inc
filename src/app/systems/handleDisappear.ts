@@ -17,9 +17,6 @@ export const handleDisappears = (
       }
     }
     
-    // Since we are modifying the original array there is no need to reassign it
-    // entities.gameObjects.nodes = nodes; // This line is not needed
-    
     return entities;
   };
   

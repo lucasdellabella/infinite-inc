@@ -1,5 +1,7 @@
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { randInt } from "@/utils/rand";
 import { GameEngine } from "../gameEngine";
 import "../index.css";
 
@@ -12,6 +14,7 @@ import initialData from "./initialData";
 import { handleEmits } from "./systems/handleEmits";
 import handleMovementPattern from "./systems/handleMovementPattern";
 import handleVelocity from "./systems/handleVelocity";
+import handleOutOfBounds from "./systems/handleOutOfBounds";
 import { Time } from "./systems/utils";
 
 export type MovementPatternComponent = {
@@ -71,8 +74,12 @@ function App() {
       style={{
         width: "100vw",
         height: "100vh",
+        position: "absolute",
+        overflow: 'hidden',
+        left: 0,
+        top: 0,
       }}
-      systems={[handleDrag, handleEmits, handleVelocity, handleMovementPattern, handleDisappears]}
+      systems={[handleDrag, handleEmits, handleVelocity, handleMovementPattern, handleDisappears, handleOutOfBounds]}
       entities={{
         gameObjects: { nodes: nodes, renderer: Nodes },
       }}
@@ -84,7 +91,7 @@ function App() {
           onClick={() => {
             nodes.push(
               createFire({
-                x: 200 + Math.random() * screen.width - 300,
+                x: randInt(50, screen.width - 50),
                 y: screen.height * (4 / 5),
               })
             );
@@ -98,8 +105,8 @@ function App() {
           onClick={() => {
             nodes.push(
               createCow({
-                x: 50 + Math.random() * screen.width - 200,
-                y: 50 + Math.random() * screen.height - 200,
+                x: randInt(50, screen.width - 200),
+                y: randInt(50, screen.height - 200),
               })
             );
           }}
@@ -112,8 +119,8 @@ function App() {
           onClick={() => {
             nodes.push(
               createFarmer({
-                x: 50 + Math.random() * screen.width - 200,
-                y: 50 + Math.random() * screen.height - 400,
+                x: randInt(50, screen.width - 200),
+                y: randInt(50, screen.height - 400),
               })
             );
           }}
