@@ -1,3 +1,4 @@
+import { dropEntityById } from "@/utils/entities";
 import { combine } from "../../lib/httpClient";
 import { EntitiesPayload } from "../App";
 import { createDefaultGameObject } from "../gameObjectConstructors";
@@ -105,9 +106,9 @@ export const handleDrag = (() => {
 
         if (name && emoji && targetEntity.position) {
           //ensures the splice doesnt move the other index
-          const [i1, i2] = [targetEntityIndex, draggedEntityIndex].sort()
-          nodes.splice(i2, 1)
-          nodes.splice(i1, 1)
+          dropEntityById(entities, targetEntity.id);
+
+          dropEntityById(entities, draggedEntity.id);
           nodes.push({
             ...createDefaultGameObject(),
             name,
