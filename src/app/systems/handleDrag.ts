@@ -104,9 +104,10 @@ export const handleDrag = (() => {
         const { name, emoji } = data || {};
 
         if (name && emoji && targetEntity.position) {
-          nodes.splice(targetEntityIndex, 1);
-          const newIndex = nodes.findIndex(({ id }) => id === draggedEntity.id);
-          nodes.splice(newIndex, 1);
+          //ensures the splice doesnt move the other index
+          const [i1, i2] = [targetEntityIndex, draggedEntityIndex].sort()
+          nodes.splice(i2, 1)
+          nodes.splice(i1, 1)
           nodes.push({
             ...createDefaultGameObject(),
             name,
