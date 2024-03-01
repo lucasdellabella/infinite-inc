@@ -75,7 +75,7 @@ export const handleDrag = (() => {
 
     // Check collision with other entities
     const targetEntityIndex = nodes.findIndex((targetEntity) => {
-      if (targetEntity === draggedEntity || !targetEntity.position)
+      if (targetEntity === draggedEntity || !targetEntity.position || targetEntity.isCombining)
         return false; // Skip self or entities without size
 
       const targetBox = {
@@ -100,6 +100,9 @@ export const handleDrag = (() => {
     if (targetEntityIndex != -1) {
       const targetEntity = nodes[targetEntityIndex];
       targetEntity.isActive = false;
+
+      targetEntity.isCombining = true
+      draggedEntity.isCombining = true
 
       combine(draggedEntity.name, targetEntity.name).then((data) => {
         const { name, emoji } = data || {};
@@ -150,7 +153,7 @@ export const handleDrag = (() => {
         const target = payload?.target as HTMLElement;
         dragEntityId = target.getAttribute("data-entity-id") || "";
         const entity = getEntityWithId(dragEntityId);
-        if (entity && entity.draggable && entity.position && entity.isActive) {
+        if (entity && entity.draggable && entity.position && entity.isActive && !entity.isCombining) {
           entity.draggable.isBeingDragged = true;
           const { clientX, clientY } = extractClientCoordinates(payload);
           dragOffset = {

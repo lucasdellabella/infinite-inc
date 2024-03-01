@@ -48,6 +48,7 @@ export const createDefaultGameObject = () => ({
     }
     return JSON.stringify(serializable);
   },
+  isCombining: false
 });
 
 export const createMilk = (position: PositionComponent) => {

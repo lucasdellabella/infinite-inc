@@ -54,6 +54,8 @@ export type PositionComponent = { x: number; y: number };
 
 export type IsActiveComponent = boolean;
 
+export type IsCombiningComponent = boolean
+
 export interface ComponentDictionary {
   position?: PositionComponent;
   draggable?: DraggableComponent;
@@ -62,6 +64,7 @@ export interface ComponentDictionary {
   emits?: EmitsComponent;
   disappears?: DisappearsComponent;
   isActive?: IsActiveComponent;
+  isCombining?: IsCombiningComponent;
 }
 
 export interface GameObject extends ComponentDictionary {
