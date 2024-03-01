@@ -51,10 +51,10 @@ function extractClientCoordinates(event: Input): {
 
 export const handleDrag = (() => {
   let dragOffset = { x: 0, y: 0 };
-  let targetEntityId = "";
+  let dragEntityId = "";
   const resetDragState = () => {
     dragOffset = { x: 0, y: 0 };
-    targetEntityId = "";
+    dragEntityId = "";
   };
 
   const checkForEntityDrop = (
@@ -73,8 +73,9 @@ export const handleDrag = (() => {
     };
 
     // Check collision with other entities
-    const ps = nodes.map((targetEntity, index) => {
-      if (targetEntity === draggedEntity || !targetEntity.position) return; // Skip self or entities without size
+    const targetEntityIndex = nodes.findIndex((targetEntity) => {
+      if (targetEntity === draggedEntity || !targetEntity.position)
+        return false; // Skip self or entities without size
 
       const targetBox = {
         left: targetEntity.position.x,
@@ -86,35 +87,38 @@ export const handleDrag = (() => {
       // Simple AABB (Axis-Aligned Bounding Box) collision detection,
       // assuming entities are rectangles and positions are top-left corners.
       // This may need to be adjusted depending on your coordinate system.
-      if (
+      return (
         draggedEntityCenter.x >= targetBox.left &&
         draggedEntityCenter.x <= targetBox.right &&
         draggedEntityCenter.y >= targetBox.top &&
         draggedEntityCenter.y <= targetBox.bottom
-      ) {
-        // A drop has occurred, the dragged entity's center is within the bounds of the target entity
-
-        targetEntity.isActive = false;
-
-        return combine(draggedEntity.name, targetEntity.name).then((data) => {
-          const { name, emoji } = data || {};
-
-          if (name && emoji && targetEntity.position) {
-            nodes.splice(index, 1);
-            nodes.splice(draggedEntityIndex, 1);
-            nodes.push({
-              ...createDefaultGameObject(),
-              name,
-              emoji,
-              position: { ...targetEntity.position },
-            });
-          }
-        }) || {};
-      } else return Promise.resolve()
+      );
+      // A drop has occurred, the dragged entity's center is within the bounds of the target entity
     });
 
-    Promise.all(ps).then(() => draggedEntity.isActive = true)
+    if (targetEntityIndex != -1) {
+      const targetEntity = nodes[targetEntityIndex];
+      targetEntity.isActive = false;
 
+      combine(draggedEntity.name, targetEntity.name).then((data) => {
+        const { name, emoji } = data || {};
+
+        if (name && emoji && targetEntity.position) {
+          nodes.splice(targetEntityIndex, 1);
+          const newIndex = nodes.findIndex(({ id }) => id === draggedEntity.id);
+          nodes.splice(newIndex, 1);
+          nodes.push({
+            ...createDefaultGameObject(),
+            name,
+            emoji,
+            position: { ...targetEntity.position },
+          });
+        }
+      });
+    } else {
+      draggedEntity.isActive = true;
+      draggedEntity.draggable = { isBeingDragged: false };
+    }
   };
 
   return (entities: EntitiesPayload, { input }: SystemArgs<any>) => {
@@ -130,20 +134,20 @@ export const handleDrag = (() => {
         ].includes(x.name)
       ) || [];
 
-    const getEntityWithId = (targetEntityId: string) => {
-      return entities.gameObjects.nodes.find(({ id }) => id === targetEntityId);
+    const getEntityWithId = (dragEntityId: string) => {
+      return entities.gameObjects.nodes.find(({ id }) => id === dragEntityId);
     };
-    const getEntityIndex = (targetEntityId: string) => {
+    const getEntityIndex = (dragEntityId: string) => {
       return entities.gameObjects.nodes.findIndex(
-        ({ id }) => id === targetEntityId
+        ({ id }) => id === dragEntityId
       );
     };
 
     events.forEach(({ name, payload }) => {
       if (name === "onMouseDown" || name === "onTouchStart") {
         const target = payload?.target as HTMLElement;
-        targetEntityId = target.getAttribute("data-entity-id") || "";
-        const entity = getEntityWithId(targetEntityId);
+        dragEntityId = target.getAttribute("data-entity-id") || "";
+        const entity = getEntityWithId(dragEntityId);
         if (entity && entity.draggable && entity.position && entity.isActive) {
           entity.draggable.isBeingDragged = true;
           const { clientX, clientY } = extractClientCoordinates(payload);
@@ -153,24 +157,23 @@ export const handleDrag = (() => {
           };
         }
       } else if (
-        targetEntityId &&
+        dragEntityId &&
         (name === "onMouseMove" || name === "onTouchMove")
       ) {
-        const entity = getEntityWithId(targetEntityId);
+        const entity = getEntityWithId(dragEntityId);
         if (entity && entity.draggable && entity.position) {
           const { pageX, pageY } = extractPageCoordinates(payload);
           entity.position.x = pageX - dragOffset.x;
           entity.position.y = pageY - dragOffset.y;
         }
       } else if (
-        targetEntityId &&
+        dragEntityId &&
         (name === "onMouseUp" || name === "onTouchEnd")
       ) {
-        const entityIndex = getEntityIndex(targetEntityId);
+        const entityIndex = getEntityIndex(dragEntityId);
         const entity = entities.gameObjects.nodes[entityIndex];
         resetDragState();
         if (entity && entity.draggable && entity.position) {
-          entity.draggable.isBeingDragged = false;
           checkForEntityDrop(entities, entityIndex);
         }
       }
