@@ -5,7 +5,7 @@ interface Props {
   nodes: GameObject[];
 }
 
-const Node = ({ id, emoji, name, position }) => {
+const Node = ({ id, emoji, name, position }: GameObject) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleHoverStart = () => {
