@@ -18,8 +18,8 @@ export const handleEmits = (
   { time }: SystemArgs<any>
 ) => {
   entities.gameObjects.nodes.forEach((node) => {
-    const { emits } = node;
-    if (!emits) return;
+    const { emits, isActive } = node;
+    if (!emits || !isActive) return;
 
     emits.timeLeft -= time.delta;
     if (emits.timeLeft <= 0) {

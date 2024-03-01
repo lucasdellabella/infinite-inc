@@ -6,6 +6,7 @@ const handleVelocity = (
   { time }: SystemArgs<any>
 ) => {
   entities.gameObjects.nodes.forEach((node) => {
+    if (!node.isActive) return;
     // Operate on only applicable nodes
     if (node.velocity && node.position) {
       if (node.draggable && node.draggable.isBeingDragged) {

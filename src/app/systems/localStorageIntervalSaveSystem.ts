@@ -13,7 +13,6 @@ const localStorageIntervalSaveSystem = () => {
           debugger;
         }
 
-        console.log(e.serialize());
         return e.serialize();
       });
       localStorage.setItem("gameState", JSON.stringify(gameState));

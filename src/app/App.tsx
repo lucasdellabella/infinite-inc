@@ -23,6 +23,7 @@ import handleVelocity from "./systems/handleVelocity";
 import localStorageIntervalSaveSystem from "./systems/localStorageIntervalSaveSystem";
 import { Time } from "./systems/utils";
 import { TrashIcon } from "lucide-react";
+import { handleActive } from "./systems/handleActive";
 
 export type MovementPatternComponent = {
   name: "durdle" | "snake_upwards" | "farmer__back_and_forth" | "meander";
@@ -50,6 +51,8 @@ export type DraggableComponent = { isBeingDragged: boolean };
 
 export type PositionComponent = { x: number; y: number };
 
+export type IsActiveComponent = boolean
+
 export interface ComponentDictionary {
   position?: PositionComponent;
   draggable?: DraggableComponent;
@@ -57,6 +60,7 @@ export interface ComponentDictionary {
   velocity?: VelocityComponent;
   emits?: EmitsComponent;
   disappears?: DisappearsComponent;
+  isActive?: IsActiveComponent;
 }
 
 export interface GameObject extends ComponentDictionary {
@@ -100,13 +104,16 @@ function App() {
         top: 0,
       }}
       systems={[
-        localStorageIntervalSaveSystem,
+        
+        handleActive,
         handleDrag,
         handleEmits,
         handleVelocity,
         handleMovementPattern,
         handleDisappears,
         handleOutOfBounds,
+        localStorageIntervalSaveSystem,
+        
       ]}
       entities={{
         gameObjects: { nodes: nodes, renderer: Nodes },
