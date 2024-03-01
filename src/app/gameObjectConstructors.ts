@@ -36,6 +36,7 @@ export const deserializeGameObject = (data: string) => {
 export const createDefaultGameObject = () => ({
   id: uuidv4(),
   draggable: { isBeingDragged: false },
+  isActive: true,
   // NOTE: Must be old fn syntax for the this to work
   serialize: function (this: GameObject) {
     const serializable: SerializableGameObject = { entity: this };
