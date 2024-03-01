@@ -78,10 +78,10 @@ export const handleDrag = (() => {
         return false; // Skip self or entities without size
 
       const targetBox = {
-        left: targetEntity.position.x,
-        right: targetEntity.position.x + 80,
-        top: targetEntity.position.y,
-        bottom: targetEntity.position.y + 60,
+        left: targetEntity.position.x - 40,
+        right: targetEntity.position.x + 40,
+        top: targetEntity.position.y - 30,
+        bottom: targetEntity.position.y + 30,
       };
 
       // Simple AABB (Axis-Aligned Bounding Box) collision detection,
