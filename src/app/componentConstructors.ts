@@ -1,4 +1,5 @@
-import { MovementPatternComponent } from "./App";
+import { AoePatternComponent, MovementPatternComponent } from "./App";
+import conveyor from "./systems/aoePattern/conveyor";
 import durdle from "./systems/movementPattern/durdle";
 import farmerBackAndForth from "./systems/movementPattern/farmerBackAndForth";
 import meander from "./systems/movementPattern/meander";
@@ -16,5 +17,14 @@ export const createMovementPattern = (
       return farmerBackAndForth();
     case "snake_upwards":
       return snakeUpwards();
+  }
+};
+
+export const createAoePattern = (
+  name: AoePatternComponent["name"]
+) => {
+  switch (name) {
+    case "conveyor":
+      return conveyor();
   }
 };

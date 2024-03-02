@@ -12,6 +12,7 @@ import {
   createCow,
   createFarmer,
   createFire,
+  createTractor,
   deserializeGameObject,
 } from "./gameObjectConstructors";
 import initialData from "./initialData";
@@ -25,6 +26,7 @@ import { Time } from "./systems/utils";
 import { TrashIcon } from "lucide-react";
 import { handleActive } from "./systems/handleActive";
 import { WrenchIcon } from "lucide-react";
+import { handleAoePattern } from "./systems/handleAoePattern";
 
 export type MovementPatternComponent = {
   name: "durdle" | "snake_upwards" | "farmer__back_and_forth" | "meander";
@@ -56,6 +58,14 @@ export type IsActiveComponent = boolean;
 
 export type IsCombiningComponent = boolean
 
+export type AoePatternComponent = {
+  name:"conveyor";
+  applyEffect: (node:GameObject) => void
+  removeEffect?: (node: GameObject) => void
+}
+
+
+
 export interface ComponentDictionary {
   position?: PositionComponent;
   draggable?: DraggableComponent;
@@ -65,6 +75,7 @@ export interface ComponentDictionary {
   disappears?: DisappearsComponent;
   isActive?: IsActiveComponent;
   isCombining?: IsCombiningComponent;
+  aoePattern?: AoePatternComponent;
 }
 
 export interface GameObject extends ComponentDictionary {
@@ -115,6 +126,7 @@ function App() {
         handleMovementPattern,
         handleDisappears,
         handleOutOfBounds,
+        handleAoePattern,
         localStorageIntervalSaveSystem,
       ]}
       entities={{
@@ -163,6 +175,20 @@ function App() {
           }}
         >
           Add <span className="text-xl ml-2">👩‍🌾</span>
+        </Button>
+        <Button
+          className="border"
+          size="lg"
+          onClick={() => {
+            nodes.push(
+              createTractor({
+                x: randInt(50, screen.width - 200),
+                y: randInt(50, screen.height - 400),
+              })
+            );
+          }}
+        >
+          Add <span className="text-xl ml-2">🚜</span>
         </Button>
         <Button
           className="border"

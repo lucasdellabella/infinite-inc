@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 import { ComponentDictionary, GameObject, PositionComponent } from "./App";
-import { createMovementPattern } from "./componentConstructors";
+import { createAoePattern, createMovementPattern } from "./componentConstructors";
 import farmerBackAndForth from "./systems/movementPattern/farmerBackAndForth";
 import meander from "./systems/movementPattern/meander";
 import snakeUpwards from "./systems/movementPattern/snakeUpwards";
+import conveyor from "./systems/aoePattern/conveyor";
 
 type ComponentDictionaryKeys = {
   [K in keyof ComponentDictionary]: object | string | boolean | number;
@@ -28,6 +29,12 @@ export const deserializeGameObject = (data: string) => {
       newEntity.movementPattern.name
     );
     newEntity.movementPattern.setState(movementPattern as object);
+  }
+
+  if (newEntity.aoePattern) {
+    newEntity.aoePattern = createAoePattern(
+      newEntity.aoePattern.name
+    );
   }
 
   return newEntity;
@@ -69,6 +76,16 @@ export const createSeed = (position: PositionComponent) => ({
   emoji: "🌱",
   position,
 });
+
+export const createTractor = (position: PositionComponent) => {
+ return {
+  ...createDefaultGameObject(),
+  name: "Tractor",
+  emoji: "🚜",
+  position,
+  aoePattern: conveyor()
+ }
+}
 
 export const createFarmer = (position: PositionComponent) => {
   return {
