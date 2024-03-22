@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { ComponentDictionary, GameObject, PositionComponent } from "./App";
+import { ComponentDictionary, GameObject, MovementPatternComponent, PositionComponent } from "./App";
 import {
   createAoePattern,
   createMovementPattern,
@@ -53,7 +53,8 @@ export const deserializeGameObject = async (data: string) => {
 export const createDefaultGameObject = async (
   name: string,
   position: PositionComponent,
-  movementPattern?: string | number | boolean | object | undefined
+  movementPatternClosureState?: string | number | boolean | object | undefined,
+  genProps?: Database["public"]["Tables"]["entity_properties"]["Row"][]
 ) => {
   const entity = {
     velocity: {
@@ -78,13 +79,15 @@ export const createDefaultGameObject = async (
   const { emojis: emoji } =
     (combo as Database["public"]["Tables"]["combos"]["Row"]) || {};
 
-  const propRows = await supaSelectMany(supabase, "entity_properties", [
+  const propRows = (await supaSelectMany(supabase, "entity_properties", [
     ["entity_name", name],
-  ]);
+  ])) as { data: unknown };
 
-  const props = (
-    propRows?.data as Database["public"]["Tables"]["entity_properties"]["Row"]
-  )?.reduce(
+  const allProps: Database["public"]["Tables"]["entity_properties"]["Row"][] = [
+    ...(genProps || []),
+    ...(propRows?.data as Database["public"]["Tables"]["entity_properties"]["Row"][]),
+  ];
+  const props = allProps.reduce(
     (
       accumulator: { [x: string]: any },
       current: { config?: any; name?: any }
@@ -106,16 +109,26 @@ export const createDefaultGameObject = async (
     {} as { [k: string]: unknown[] | unknown }
   );
 
-  const newEntity = { ...entity, ...{ emoji: emoji || "?" }, ...props };
+  const newEntity = {
+    ...entity,
+    ...{ emoji: emoji || "?" },
+    ...props,
+  } as GameObject;
+
+  if (genProps) console.log("new gusy", newEntity);
 
   // Check each component that needs to be able to serialize and load itself
   // gameObject.
   if (newEntity.movementPattern) {
-    newEntity.movementPattern = createMovementPattern(
-      newEntity.movementPattern.name
-    );
-    if (movementPattern)
-      newEntity.movementPattern.setState(movementPattern as object);
+    const { name: movementPatternName } = newEntity.movementPattern;
+    const newMp = createMovementPattern(movementPatternName);
+    if (newMp) {
+      newEntity.movementPattern = createMovementPattern(movementPatternName) as MovementPatternComponent;
+      if (newEntity.movementPattern && movementPatternClosureState)
+        newEntity.movementPattern.setState(
+          movementPatternClosureState as object
+        );
+    }
   }
 
   if (newEntity.aoePattern) {

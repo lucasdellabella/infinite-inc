@@ -8,6 +8,7 @@ const localStorageIntervalSaveSystem = () => {
   return (entities: EntitiesPayload, { time }: SystemArgs<any>) => {
     timeSinceLastSave += time.delta;
     if (timeSinceLastSave > TEN_SECONDS) {
+      console.log("saving")
       const gameState = entities.gameObjects?.nodes?.filter(e => e.serialize).map((e) => {
         return e.serialize();
       });

@@ -29,7 +29,7 @@ import { WrenchIcon } from "lucide-react";
 import { handleAoePattern } from "./systems/handleAoePattern";
 
 export type MovementPatternComponent = {
-  name: "durdle" | "snake_upwards" | "farmer__back_and_forth" | "meander";
+  name: "durdle" | "snake_upwards" | "farmer_back_and_forth" | "meander";
   update: (time: Time, entity: GameObject) => void;
   getState: () => object;
   setState: (data: object) => void;

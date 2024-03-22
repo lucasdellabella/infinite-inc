@@ -16,7 +16,7 @@ export function supaSelectMany(
 
   cols.forEach(([col, val]) => (q = q.eq(col, val)));
 
-  memCache.set(hash, q);
+  memCache.set(hash, Promise.resolve(q as unknown));
   return q;
 }
 export function supaSelectOne(

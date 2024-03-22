@@ -119,6 +119,8 @@ export const handleDrag = (() => {
           createDefaultGameObject(
             name,
             targetEntity.position,
+            undefined,
+            props
           ).then((x) => {
             console.log("pushing", name, targetEntity.position, x);
             nodes.push({...x, ...props});

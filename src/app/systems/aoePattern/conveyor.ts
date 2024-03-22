@@ -27,7 +27,12 @@ const conveyor = (): AoePatternComponent => {
         const [mp, state] = savedMovementPatterns.get(node.id) || [];
         savedMovementPatterns.delete(node.id)
         const { name } = mp || {};
-        if (name) node.movementPattern = createMovementPattern(name);
+        
+        if (name){
+          const newMp = createMovementPattern(name);
+          if(newMp)
+            node.movementPattern = newMp as MovementPatternComponent
+        }
         if (state) node.movementPattern?.setState(state);
       }
     },

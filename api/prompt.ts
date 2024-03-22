@@ -44,23 +44,7 @@ export async function GET(request: Request) {
 
     const emoji = typeof res === "string" ? await promptEmoji(res) : null;
 
-    const propRows = typeof res === "string" ? await promptProps(res) : null;
-
-    const props = propRows?.reduce((accumulator, current) => {
-      const { name } = current;
-      if (!name) return accumulator;
-      if (name === "emits") {
-        if (accumulator[name]) {
-          (accumulator[name] as unknown[]).push(current.config);
-        } else {
-          accumulator[name] = [current.config];
-        }
-      } else {
-        accumulator[name] = current.config;
-      }
-
-      return accumulator;
-    }, {} as { [k: string]: unknown[] | unknown });
+    const props = typeof res === "string" ? await promptProps(res) : null;
 
     return new Response(JSON.stringify([res, emoji, props]));
   } else {
@@ -98,7 +82,7 @@ export function parseCustomSyntax(input: string) {
       const [k, v] = pair.split("=");
 
       // Assign to the properties object, attempting to parse numbers if necessary
-      result[key][k] = isNaN(v) ? strictCamelToSnakeCase(v) : Number(v);
+      result[key][k] = isNaN(v as unknown as number) ? strictCamelToSnakeCase(v) : Number(v);
     });
 
     return result;
@@ -123,9 +107,9 @@ export async function promptProps(label: string) {
 
   const [propsString] = output.split("> ").reverse();
 
-  const propsWithFail = propsString
-    .split(/(?<!\[[^\]]*)/g)
-    .map(parseCustomSyntax);
+  const propsWithFail = [...propsString
+    .matchAll(/(\w+)\[(\w+=[\w]+)(,\s*\w+=\w+)*\]/g)]
+    .map(([match])=>parseCustomSyntax(match));
 
   const fails = propsWithFail.filter((x) => !x);
   if (fails.length > 0) console.log("error parsing", label, propsString);
@@ -133,7 +117,7 @@ export async function promptProps(label: string) {
   const props = propsWithFail.filter((x) => x);
   const propRows = props.map(
     (p): Database["public"]["Tables"]["entity_properties"]["Insert"] => {
-      const [[k, v]] = Object.entries(p) || [];
+      const [[k, v]] = Object.entries(p as object) || [];
 
       return {
         name: k,
@@ -147,7 +131,6 @@ export async function promptProps(label: string) {
     if (error) console.log("insert failed", error);
   }
   return propRows;
-  q;
 }
 export async function promptEmoji(label: string): Promise<string | null> {
   const { data } =
