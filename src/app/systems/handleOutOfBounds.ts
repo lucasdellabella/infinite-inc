@@ -7,7 +7,7 @@ const handleOutOfBounds = (
   entities: EntitiesPayload,
   { window }: SystemArgs<any>
 ) => {
-  const nodes = entities.gameObjects.nodes;
+  const nodes = entities.gameObjects?.nodes || [];
   
   for (let i = nodes.length - 1; i >= 0; i--) {
     const node = nodes[i];

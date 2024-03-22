@@ -16,7 +16,8 @@ const conveyor = (): AoePatternComponent => {
       if (savedMovementPatterns.has(node.id)) return;
       const { movementPattern: mp } = node;
 
-      savedMovementPatterns.set(node.id, [mp, mp?.getState()]);
+      if (mp?.getState)
+        savedMovementPatterns.set(node.id, [mp, mp?.getState()]);
       node.movementPattern = undefined;
       node.velocity = { vx: 5, vy: 0 };
     },

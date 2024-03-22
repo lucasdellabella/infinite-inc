@@ -56,15 +56,13 @@ export type PositionComponent = { x: number; y: number };
 
 export type IsActiveComponent = boolean;
 
-export type IsCombiningComponent = boolean
+export type IsCombiningComponent = boolean;
 
 export type AoePatternComponent = {
-  name:"conveyor";
-  applyEffect: (node:GameObject) => void
-  removeEffect?: (node: GameObject) => void
-}
-
-
+  name: "conveyor";
+  applyEffect: (node: GameObject) => void;
+  removeEffect?: (node: GameObject) => void;
+};
 
 export interface ComponentDictionary {
   position?: PositionComponent;
@@ -99,13 +97,18 @@ function App() {
   });
   const [nodes] = useState<GameObject[]>(initialData);
   useEffect(() => {
-    const rawState = localStorage.getItem("gameState");
-    if (rawState) {
-      const gameState = rawState ? JSON.parse(rawState) : null;
-      const entities: GameObject[] = gameState.map(deserializeGameObject);
-      nodes.length = 0;
-      entities.forEach((e) => nodes.push(e));
+    async function c() {
+      const rawState = localStorage.getItem("gameState");
+      if (rawState) {
+        const gameState = rawState ? JSON.parse(rawState) : null;
+        const entities: GameObject[] = await Promise.all(
+          gameState.map(deserializeGameObject)
+        );
+        nodes.length = 0;
+        entities.forEach((e) => nodes.push(e));
+      }
     }
+    c();
   }, [nodes]);
 
   return (
@@ -137,9 +140,9 @@ function App() {
       <div className="absolute items-center bottom-2 left-2 flex space-x-2">
         <Button
           size="lg"
-          onClick={() => {
+          onClick={async () => {
             nodes.push(
-              createFire({
+              await createFire({
                 x: randInt(50, screen.width - 50),
                 y: screen.height * (4 / 5),
               })
@@ -151,9 +154,9 @@ function App() {
         <Button
           className="border"
           size="lg"
-          onClick={() => {
+          onClick={async () => {
             nodes.push(
-              createCow({
+              await createCow({
                 x: randInt(50, screen.width - 200),
                 y: randInt(50, screen.height - 200),
               })
@@ -165,9 +168,9 @@ function App() {
         <Button
           className="border"
           size="lg"
-          onClick={() => {
+          onClick={async () => {
             nodes.push(
-              createFarmer({
+              await createFarmer({
                 x: randInt(50, screen.width - 200),
                 y: randInt(50, screen.height - 400),
               })
@@ -179,9 +182,9 @@ function App() {
         <Button
           className="border"
           size="lg"
-          onClick={() => {
+          onClick={async () => {
             nodes.push(
-              createTractor({
+              await createTractor({
                 x: randInt(50, screen.width - 200),
                 y: randInt(50, screen.height - 400),
               })

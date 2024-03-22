@@ -5,10 +5,10 @@ const handleMovementPattern = (
   entities: EntitiesPayload,
   { time }: SystemArgs<any>
 ) => {
-  entities.gameObjects.nodes.forEach((node) => {
+  entities.gameObjects?.nodes?.forEach((node) => {
     if (!node.isActive) return
     // Operate on only applicable nodes
-    if (node.movementPattern && !node.draggable?.isBeingDragged) {
+    if (node.movementPattern && !node.draggable?.isBeingDragged && node.movementPattern?.update) {
       node.movementPattern.update(time, node);
     }
   });

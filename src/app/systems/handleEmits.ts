@@ -1,10 +1,7 @@
 import { EntitiesPayload, GameObject } from "../App";
 import {
-  createCow,
-  createFarmer,
-  createFire,
-  createMilk,
-  createSeed,
+  createDefaultGameObject,
+  createTractor,
 } from "../gameObjectConstructors";
 import { SystemArgs } from "./utils";
 
@@ -13,11 +10,11 @@ const getRandomPosition = (baseX = 200, baseY = 200) => ({
   y: baseY + Math.random() * 20,
 });
 
-export const handleEmits = (
+export const handleEmits =  (
   entities: EntitiesPayload,
   { time }: SystemArgs<any>
 ) => {
-  entities.gameObjects.nodes.forEach((node) => {
+  entities.gameObjects?.nodes?.forEach((node) => {
     const { emits, isActive } = node;
     if (!emits || !isActive) return;
 
@@ -26,29 +23,20 @@ export const handleEmits = (
       const { period, emittedObjectName } = emits;
       const { position } = node;
       const emitPosition = getRandomPosition(position?.x, position?.y);
-      let newObject: GameObject | null = null;
-      switch (emittedObjectName) {
-        case "Seed":
-          newObject = createSeed(emitPosition);
-          break;
-        case "Cow":
-          newObject = createCow(emitPosition);
-          break;
-        case "Farmer":
-          newObject = createFarmer(emitPosition);
-          break;
-        case "Fire":
-          newObject = createFire(emitPosition);
-          break;
-        case "Milk":
-          newObject = createMilk(emitPosition);
-          break;
-        default:
-          break;
+      const pushGameObjectIfExists = (newObject: GameObject) => {
+        if (newObject) {
+          entities.gameObjects?.nodes?.push(newObject);
+        }
+      };
+      if (emittedObjectName === "tractor") {
+        createTractor(emitPosition).then(pushGameObjectIfExists);
+      } else {
+        createDefaultGameObject(emittedObjectName, emitPosition).then(
+          pushGameObjectIfExists
+        );
       }
-      if (newObject) {
-        entities.gameObjects.nodes.push(newObject);
-      }
+      
+
       emits.timeLeft = period;
     }
   });

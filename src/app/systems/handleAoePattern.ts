@@ -6,7 +6,7 @@ export const handleAoePattern = (
   entities: EntitiesPayload,
   {}: SystemArgs<any>
 ) => {
-  entities.gameObjects.nodes.forEach((node) => {
+  entities.gameObjects?.nodes?.forEach((node) => {
     if (!node.position || !node.aoePattern || !node.isActive) return;
     const targetBox = {
       left: node.position.x - 40,
@@ -19,7 +19,7 @@ export const handleAoePattern = (
     // assuming entities are rectangles and positions are top-left corners.
     // This may need to be adjusted depending on your coordinate system.
     const [inside, outside] = partition(
-      entities.gameObjects.nodes,
+      entities.gameObjects?.nodes || [],
       (testNode) => {
         if (testNode.id === node.id || !testNode.position) return false;
         return (
@@ -30,8 +30,9 @@ export const handleAoePattern = (
         );
       }
     );
-    inside.forEach(node.aoePattern.applyEffect);
-    if(node.aoePattern.removeEffect)
+    if(node.aoePattern?.applyEffect)
+      inside.forEach(node.aoePattern.applyEffect);
+    if(node.aoePattern?.removeEffect)
         outside.forEach(node.aoePattern.removeEffect);
   });
 

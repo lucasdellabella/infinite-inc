@@ -5,7 +5,7 @@ const handleVelocity = (
   entities: EntitiesPayload,
   { time }: SystemArgs<any>
 ) => {
-  entities.gameObjects.nodes.forEach((node) => {
+  entities.gameObjects?.nodes?.forEach((node) => {
     if (!node.isActive) return;
     // Operate on only applicable nodes
     if (node.velocity && node.position) {

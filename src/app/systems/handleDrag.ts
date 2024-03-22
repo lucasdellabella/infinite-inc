@@ -75,7 +75,11 @@ export const handleDrag = (() => {
 
     // Check collision with other entities
     const targetEntityIndex = nodes.findIndex((targetEntity) => {
-      if (targetEntity === draggedEntity || !targetEntity.position || targetEntity.isCombining)
+      if (
+        targetEntity === draggedEntity ||
+        !targetEntity.position ||
+        targetEntity.isCombining
+      )
         return false; // Skip self or entities without size
 
       const targetBox = {
@@ -101,8 +105,8 @@ export const handleDrag = (() => {
       const targetEntity = nodes[targetEntityIndex];
       targetEntity.isActive = false;
 
-      targetEntity.isCombining = true
-      draggedEntity.isCombining = true
+      targetEntity.isCombining = true;
+      draggedEntity.isCombining = true;
 
       combine(draggedEntity.name, targetEntity.name).then((data) => {
         const { name, emoji } = data || {};
@@ -112,12 +116,10 @@ export const handleDrag = (() => {
           dropEntityById(entities, targetEntity.id);
 
           dropEntityById(entities, draggedEntity.id);
-          nodes.push({
-            ...createDefaultGameObject(),
-            name,
-            emoji,
-            position: { ...targetEntity.position },
-          });
+
+          createDefaultGameObject(name, { ...targetEntity.position }).then(
+            nodes.push
+          );
         }
       });
     } else {
@@ -140,10 +142,10 @@ export const handleDrag = (() => {
       ) || [];
 
     const getEntityWithId = (dragEntityId: string) => {
-      return entities.gameObjects.nodes.find(({ id }) => id === dragEntityId);
+      return entities.gameObjects?.nodes?.find(({ id }) => id === dragEntityId);
     };
     const getEntityIndex = (dragEntityId: string) => {
-      return entities.gameObjects.nodes.findIndex(
+      return entities.gameObjects?.nodes?.findIndex(
         ({ id }) => id === dragEntityId
       );
     };
@@ -153,7 +155,13 @@ export const handleDrag = (() => {
         const target = payload?.target as HTMLElement;
         dragEntityId = target.getAttribute("data-entity-id") || "";
         const entity = getEntityWithId(dragEntityId);
-        if (entity && entity.draggable && entity.position && entity.isActive && !entity.isCombining) {
+        if (
+          entity &&
+          entity.draggable &&
+          entity.position &&
+          entity.isActive &&
+          !entity.isCombining
+        ) {
           entity.draggable.isBeingDragged = true;
           const { clientX, clientY } = extractClientCoordinates(payload);
           dragOffset = {
@@ -176,7 +184,7 @@ export const handleDrag = (() => {
         (name === "onMouseUp" || name === "onTouchEnd")
       ) {
         const entityIndex = getEntityIndex(dragEntityId);
-        const entity = entities.gameObjects.nodes[entityIndex];
+        const entity = entities.gameObjects?.nodes[entityIndex];
         resetDragState();
         if (entity && entity.draggable && entity.position) {
           checkForEntityDrop(entities, entityIndex);

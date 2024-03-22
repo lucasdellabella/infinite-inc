@@ -1,10 +1,21 @@
 import { v4 as uuidv4 } from "uuid";
-import { ComponentDictionary, GameObject, PositionComponent } from "./App";
-import { createAoePattern, createMovementPattern } from "./componentConstructors";
-import farmerBackAndForth from "./systems/movementPattern/farmerBackAndForth";
-import meander from "./systems/movementPattern/meander";
-import snakeUpwards from "./systems/movementPattern/snakeUpwards";
+import {
+  ComponentDictionary,
+  GameObject,
+  PositionComponent,
+} from "./App";
+import {
+  createAoePattern,
+  createMovementPattern,
+} from "./componentConstructors";
 import conveyor from "./systems/aoePattern/conveyor";
+import { SupabaseClient, createClient } from "@supabase/supabase-js";
+import { Database, supaSelectMany, supaSelectOne } from "../lib/supabase";
+
+const supabase: SupabaseClient<Database> = createClient(
+  import.meta.env.VITE_SUPABASE_URL || "",
+  import.meta.env.VITE_SUPABASE_ANON_KEY || ""
+);
 
 type ComponentDictionaryKeys = {
   [K in keyof ComponentDictionary]: object | string | boolean | number;
@@ -14,123 +25,129 @@ export type SerializableGameObject = {
   entity: GameObject;
 } & ComponentDictionaryKeys;
 
-export const deserializeGameObject = (data: string) => {
+const defaultPosition: PositionComponent = {
+  x: 0,
+  y: 0,
+};
+
+export const deserializeGameObject = async (data: string) => {
   // everything other than entity is
   // the function's closure data.
   // movementPattern is really movementPatternClosureState
-  const baseEntity = createDefaultGameObject();
-  const { entity, movementPattern }: SerializableGameObject = JSON.parse(data);
+
+  const { entity: baseEntity, movementPattern }: SerializableGameObject =
+    JSON.parse(data);
+  const position = baseEntity.position || defaultPosition;
+
+  const entity =
+    baseEntity.name !== "tractor"
+      ? await createDefaultGameObject(
+          baseEntity.name,
+          position,
+          movementPattern
+        )
+      : await createTractor(position);
+
   const newEntity = { ...baseEntity, ...entity };
-
-  // Check each component that needs to be able to serialize and load itself
-  // gameObject.
-  if (newEntity.movementPattern && movementPattern) {
-    newEntity.movementPattern = createMovementPattern(
-      newEntity.movementPattern.name
-    );
-    newEntity.movementPattern.setState(movementPattern as object);
-  }
-
-  if (newEntity.aoePattern) {
-    newEntity.aoePattern = createAoePattern(
-      newEntity.aoePattern.name
-    );
-  }
 
   return newEntity;
 };
 
-export const createDefaultGameObject = () => ({
-  id: uuidv4(),
-  draggable: { isBeingDragged: false },
-  isActive: true,
-  // NOTE: Must be old fn syntax for the this to work
-  serialize: function (this: GameObject) {
-    const serializable: SerializableGameObject = { entity: this };
-    if (this.movementPattern) {
-      serializable.movementPattern = this.movementPattern.getState();
-    }
-    if (this.emits) {
-      serializable.emits = {};
-    }
-    return JSON.stringify(serializable);
-  },
-  isCombining: false
-});
-
-export const createMilk = (position: PositionComponent) => {
-  return {
-    ...createDefaultGameObject(),
-    name: "Milk",
-    emoji: "🥛",
-    position,
-    disappears: {
-      timeLeft: 5000,
-    },
-  };
-};
-
-export const createSeed = (position: PositionComponent) => ({
-  ...createDefaultGameObject(),
-  name: "Seed",
-  emoji: "🌱",
-  position,
-});
-
-export const createTractor = (position: PositionComponent) => {
- return {
-  ...createDefaultGameObject(),
-  name: "Tractor",
-  emoji: "🚜",
-  position,
-  aoePattern: conveyor()
- }
-}
-
-export const createFarmer = (position: PositionComponent) => {
-  return {
-    ...createDefaultGameObject(),
-    name: "Farmer",
-    emoji: "👩‍🌾",
-    position,
+export const createDefaultGameObject = async (
+  name: string,
+  position: PositionComponent,
+  movementPattern?: string | number | boolean | object | undefined
+) => {
+  const entity = {
     velocity: {
-      vx: 10,
+      vx: 0,
       vy: 0,
     },
-    movementPattern: farmerBackAndForth(),
-    emits: {
-      timeLeft: 0,
-      period: 5000,
-      emittedObjectName: "Seed",
+    id: uuidv4(),
+    draggable: { isBeingDragged: false },
+    isActive: true,
+    // NOTE: Must be old fn syntax for the this to work
+    isCombining: false,
+    position,
+    name,
+  };
+  const combo = await supaSelectOne(supabase, "combos", [["res_name1", name]]);
+
+  const { emojis: emoji } =
+    (combo as Database["public"]["Tables"]["combos"]["Row"]) || {};
+
+  const i1 = await supaSelectMany(supabase, "entity_properties", [
+    ["entity_name", name],
+  ]);
+
+  const entries =
+    (i1.data as Database["public"]["Tables"]["entity_properties"]["Row"][])
+      ?.filter(({ name }) => name != null)
+      .map(({ name, config }) => [name, config]) ?? [];
+  const props = Object.fromEntries(entries);
+
+  const newEntity = { ...entity, ...{ emoji }, ...props };
+
+  // Check each component that needs to be able to serialize and load itself
+  // gameObject.
+  if (newEntity.movementPattern) {
+    newEntity.movementPattern = createMovementPattern(
+      newEntity.movementPattern.name
+    );
+    if (movementPattern)
+      newEntity.movementPattern.setState(movementPattern as object);
+  }
+
+  if (newEntity.aoePattern) {
+    newEntity.aoePattern = createAoePattern(newEntity.aoePattern.name);
+  }
+
+  return {
+    ...newEntity,
+    serialize: function (this: GameObject) {
+      const serializable: SerializableGameObject = { entity: this };
+      if (this.movementPattern?.getState) {
+        serializable.movementPattern = this.movementPattern.getState();
+      }
+      if (this.emits) {
+        serializable.emits = {};
+      }
+      return JSON.stringify(serializable);
     },
   };
 };
 
-export const createCow = (position: PositionComponent) => ({
-  ...createDefaultGameObject(),
-  name: "Cow",
-  emoji: "🐮",
-  position,
-  velocity: {
-    vx: 10,
-    vy: 0,
-  },
-  movementPattern: meander(),
-  emits: {
-    timeLeft: 2000,
-    period: 15000,
-    emittedObjectName: "Milk",
-  },
-});
+export const createMilk = async (position: PositionComponent) =>
+  await createDefaultGameObject("milk", position);
 
-export const createFire = (position: PositionComponent) => ({
-  ...createDefaultGameObject(),
-  name: "Fire",
-  emoji: "🔥",
-  position,
-  velocity: {
-    vx: 10,
-    vy: 0,
-  },
-  movementPattern: snakeUpwards(),
-});
+export const createSeed = async (position: PositionComponent) =>
+  await createDefaultGameObject("seed", position);
+
+export const createTractor = async (position: PositionComponent) => {
+  const tractor = await createDefaultGameObject("tractor", position);
+  return {
+    ...tractor,
+    aoePattern: conveyor(),
+  };
+};
+
+export const createFarmer = async (position: PositionComponent) => {
+  const farmer = await createDefaultGameObject("farmer", position);
+  return {
+    ...farmer,
+  };
+};
+
+export const createCow = async (position: PositionComponent) => {
+  const cow = await createDefaultGameObject("cow", position);
+  return {
+    ...cow,
+  };
+};
+
+export const createFire = async (position: PositionComponent) => {
+  const fire = await createDefaultGameObject("fire", position);
+  return {
+    ...fire,
+  };
+};

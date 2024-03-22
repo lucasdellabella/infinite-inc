@@ -8,10 +8,10 @@ const localStorageIntervalSaveSystem = () => {
   return (entities: EntitiesPayload, { time }: SystemArgs<any>) => {
     timeSinceLastSave += time.delta;
     if (timeSinceLastSave > TEN_SECONDS) {
-      const gameState = entities.gameObjects.nodes.map((e) => {
+      const gameState = entities.gameObjects?.nodes?.filter(e => e.serialize).map((e) => {
         return e.serialize();
       });
-      localStorage.setItem("gameState", JSON.stringify(gameState));
+      localStorage.setItem("gameState", JSON.stringify(gameState || []));
       timeSinceLastSave = 0;
     }
 
