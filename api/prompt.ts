@@ -5,7 +5,7 @@ import querystring from "node:querystring";
 // https://vercel.com/docs/functions/quickstart#create-an-api-route
 
 const supabase: SupabaseClient<Database> = createClient(
-  process.env.SUPABASE_URL || "",
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
   process.env.SUPABASE_SERVICE_ROLE || ""
 );
 
