@@ -44,28 +44,111 @@ export async function GET(request: Request) {
 
     const emoji = typeof res === "string" ? await promptEmoji(res) : null;
 
-    return new Response(JSON.stringify([res, emoji]));
+    const propRows = typeof res === "string" ? await promptProps(res) : null;
+
+    const props = propRows?.reduce((accumulator, current) => {
+      const { name } = current;
+      if (!name) return accumulator;
+      if (name === "emits") {
+        if (accumulator[name]) {
+          (accumulator[name] as unknown[]).push(current.config);
+        } else {
+          accumulator[name] = [current.config];
+        }
+      } else {
+        accumulator[name] = current.config;
+      }
+
+      return accumulator;
+    }, {} as { [k: string]: unknown[] | unknown });
+
+    return new Response(JSON.stringify([res, emoji, props]));
   } else {
     const res = new Response("Bad request", { status: 400 });
     return res;
   }
 }
 
-export async function promptProps(label: string): Promise<Database["public"]["Tables"]["entity_properties"]["Row"][] | null> {
-  const {data } = await supabase.from("entity_properties").select().eq("entity_name", label)
-
-  if (data) return data
-  
-  const ideas = await run (label, generateComponentIdeasPrompt)
-
-  if(!ideas) return []
-
-  const output = await run (ideas, selectComponentIdeasPrompt)
-  if (!output) return []
-
-  console.log("output", output)
+function strictCamelToSnakeCase(str: string) {
+  // Strict camelCase check
+  if (typeof str === "string" && /^[a-z]+(?:[A-Z][a-z]*)*$/.test(str)) {
+    const snakeCaseStr = str.replace(
+      /[A-Z]/g,
+      (letter) => `_${letter.toLowerCase()}`
+    );
+    return snakeCaseStr;
+  }
+  return str; // Return unchanged if it's not strictly camelCase
 }
 
+export function parseCustomSyntax(input: string) {
+  // Initialize an empty object to store our result
+  try {
+    const result: { [key: string]: { [k: string]: unknown } } = {};
+
+    // Extract the key (e.g., 'emits') and the values inside the brackets
+    const [, key, values] = input.match(/(\w+)\[([^[\]]+)]/) || [];
+
+    // Create a properties object within the result
+    result[key] = {};
+
+    // Split the key-value pairs and loop through them
+    values.split(",").forEach((pair) => {
+      // Split each key-value pair
+      const [k, v] = pair.split("=");
+
+      // Assign to the properties object, attempting to parse numbers if necessary
+      result[key][k] = isNaN(v) ? strictCamelToSnakeCase(v) : Number(v);
+    });
+
+    return result;
+  } catch (e) {
+    console.log("error parsing", input);
+  }
+}
+export async function promptProps(label: string) {
+  const { data } = await supabase
+    .from("entity_properties")
+    .select()
+    .eq("entity_name", label);
+
+  if (data && data.length !== 0) return data;
+
+  const ideas = await run(label, generateComponentIdeasPrompt);
+
+  if (!ideas) return [];
+
+  const output = await run(ideas, selectComponentIdeasPrompt);
+  if (!output) return [];
+
+  const [propsString] = output.split("> ").reverse();
+
+  const propsWithFail = propsString
+    .split(/(?<!\[[^\]]*)/g)
+    .map(parseCustomSyntax);
+
+  const fails = propsWithFail.filter((x) => !x);
+  if (fails.length > 0) console.log("error parsing", label, propsString);
+
+  const props = propsWithFail.filter((x) => x);
+  const propRows = props.map(
+    (p): Database["public"]["Tables"]["entity_properties"]["Insert"] => {
+      const [[k, v]] = Object.entries(p) || [];
+
+      return {
+        name: k,
+        config: JSON.parse(JSON.stringify(v)),
+        entity_name: label,
+      };
+    }
+  );
+  if (supabase) {
+    const { error } = await supabase.from("entity_properties").insert(propRows);
+    if (error) console.log("insert failed", error);
+  }
+  return propRows;
+  q;
+}
 export async function promptEmoji(label: string): Promise<string | null> {
   const { data } =
     (await supabase.from("combos").select("emojis").eq("res_name1", label)) ||
@@ -419,7 +502,6 @@ Answer>Camel|Priest|Caravan
 
 ONLY RESPOND WITH A SINGLE RECIPE THAT MATCHES THE PROMPT!!!`;
 
-
 const selectComponentIdeasPrompt = `
 ### Facts:
 
@@ -472,7 +554,7 @@ A [cow] is known to:
 // My input
 {input}
 // Your output
-`
+`;
 
 const generateComponentIdeasPrompt = `
 ### Facts:
@@ -592,7 +674,7 @@ Sparkle on water: emits[object=sparkle, frequencyMs=2000] could simulate the vis
 // My input
 {entity_name}
 // Your output
-`
+`;
 
 export type Json =
   | string

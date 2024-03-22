@@ -71,22 +71,40 @@ export const createDefaultGameObject = async (
       .split(" ")
       .map(capitalizeFirstLetter)
       .join(" "),
-    identifier: name
+    identifier: name,
   };
   const combo = await supaSelectOne(supabase, "combos", [["res_name1", name]]);
 
   const { emojis: emoji } =
     (combo as Database["public"]["Tables"]["combos"]["Row"]) || {};
 
-  const i1 = await supaSelectMany(supabase, "entity_properties", [
+  const propRows = await supaSelectMany(supabase, "entity_properties", [
     ["entity_name", name],
   ]);
 
-  const entries =
-    (i1.data as Database["public"]["Tables"]["entity_properties"]["Row"][])
-      ?.filter(({ name }) => name != null)
-      .map(({ name, config }) => [name, config]) ?? [];
-  const props = Object.fromEntries(entries);
+  const props = (
+    propRows?.data as Database["public"]["Tables"]["entity_properties"]["Row"]
+  )?.reduce(
+    (
+      accumulator: { [x: string]: any },
+      current: { config?: any; name?: any }
+    ) => {
+      const { name } = current;
+      if (!name) return accumulator;
+      if (name === "emits") {
+        if (accumulator[name]) {
+          (accumulator[name] as unknown[]).push(current.config);
+        } else {
+          accumulator[name] = [current.config];
+        }
+      } else {
+        accumulator[name] = current.config;
+      }
+
+      return accumulator;
+    },
+    {} as { [k: string]: unknown[] | unknown }
+  );
 
   const newEntity = { ...entity, ...{ emoji: emoji || "?" }, ...props };
 

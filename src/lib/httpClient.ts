@@ -1,6 +1,6 @@
 import axios from "axios";
 
-type Result = { name: string; emoji: string };
+type Result = { name: string; emoji: string; props: any[] };
 
 const resCache = new Map<string, Result>();
 
@@ -25,9 +25,9 @@ export async function combine(
         // handle success
         console.log(response);
         const res = response?.data;
-        const [name, emoji] = res || [];
+        const [name, emoji, props] = res || [];
 
-        const result = {name, emoji}
+        const result = {name, emoji, props}
         if (resCache.size < 100) resCache.set(url, result);
         return result;
       })

@@ -41,13 +41,13 @@ export type VelocityComponent = {
 };
 
 export type EmitsComponent = {
-  period: number;
-  timeLeft: number;
-  emittedObjectName: string;
+  frequencyMs: number;
+  timeLeftMs?: number;
+  object: string;
 };
 
 export type DisappearsComponent = {
-  timeLeft: number;
+  timeLeftMs: number;
 };
 
 export type DraggableComponent = { isBeingDragged: boolean };
@@ -69,7 +69,7 @@ export interface ComponentDictionary {
   draggable?: DraggableComponent;
   movementPattern?: MovementPatternComponent;
   velocity?: VelocityComponent;
-  emits?: EmitsComponent;
+  emits?: EmitsComponent[];
   disappears?: DisappearsComponent;
   isActive?: IsActiveComponent;
   isCombining?: IsCombiningComponent;

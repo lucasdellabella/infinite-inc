@@ -16,29 +16,32 @@ export const handleEmits =  (
 ) => {
   entities.gameObjects?.nodes?.forEach((node) => {
     const { emits, isActive } = node;
-    if (!emits || !isActive) return;
+    if (!emits || !isActive || emits.length === 0) return;
 
-    emits.timeLeft -= time.delta;
-    if (emits.timeLeft <= 0) {
-      const { period, emittedObjectName } = emits;
-      const { position } = node;
-      const emitPosition = getRandomPosition(position?.x, position?.y);
-      const pushGameObjectIfExists = (newObject: GameObject) => {
-        if (newObject) {
-          entities.gameObjects?.nodes?.push(newObject);
+    emits.forEach(emit => {
+      emit.timeLeftMs =  (emit.timeLeftMs || emit.frequencyMs) - time.delta;
+      if (emit.timeLeftMs <= 0) {
+        const { object, frequencyMs } = emit;
+        const { position } = node;
+        const emitPosition = getRandomPosition(position?.x, position?.y);
+        const pushGameObjectIfExists = (newObject: GameObject) => {
+          if (newObject) {
+            entities.gameObjects?.nodes?.push(newObject);
+          }
+        };
+        if (object === "tractor") {
+          createTractor(emitPosition).then(pushGameObjectIfExists);
+        } else {
+          createDefaultGameObject(object, emitPosition).then(
+            pushGameObjectIfExists
+          );
         }
-      };
-      if (emittedObjectName === "tractor") {
-        createTractor(emitPosition).then(pushGameObjectIfExists);
-      } else {
-        createDefaultGameObject(emittedObjectName, emitPosition).then(
-          pushGameObjectIfExists
-        );
+        
+  
+        emit.timeLeftMs = frequencyMs;
       }
-      
-
-      emits.timeLeft = period;
-    }
+    })
+    
   });
 
   return entities;

@@ -108,7 +108,7 @@ export const handleDrag = (() => {
       draggedEntity.isCombining = true;
 
       combine(draggedEntity.name, targetEntity.name).then((data) => {
-        const { name, emoji } = data || {};
+        const { name, emoji, props } = data || {};
 
         if (name && emoji && targetEntity.position && nodes) {
           //ensures the splice doesnt move the other index
@@ -116,9 +116,12 @@ export const handleDrag = (() => {
 
           dropEntityById(entities, draggedEntity.id);
 
-          createDefaultGameObject(name, targetEntity.position).then((x) => {
+          createDefaultGameObject(
+            name,
+            targetEntity.position,
+          ).then((x) => {
             console.log("pushing", name, targetEntity.position, x);
-            nodes.push(x);
+            nodes.push({...x, ...props});
           });
         }
       });
