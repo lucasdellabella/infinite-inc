@@ -74,7 +74,7 @@ export const handleDrag = (() => {
     };
 
     // Check collision with other entities
-    const targetEntityIndex = nodes.findIndex((targetEntity) => {
+    const targetEntity = nodes.find((targetEntity) => {
       if (
         targetEntity === draggedEntity ||
         !targetEntity.position ||
@@ -101,8 +101,7 @@ export const handleDrag = (() => {
       // A drop has occurred, the dragged entity's center is within the bounds of the target entity
     });
 
-    if (targetEntityIndex != -1) {
-      const targetEntity = nodes[targetEntityIndex];
+    if (targetEntity) {
       targetEntity.isActive = false;
 
       targetEntity.isCombining = true;
@@ -111,15 +110,16 @@ export const handleDrag = (() => {
       combine(draggedEntity.name, targetEntity.name).then((data) => {
         const { name, emoji } = data || {};
 
-        if (name && emoji && targetEntity.position) {
+        if (name && emoji && targetEntity.position && nodes) {
           //ensures the splice doesnt move the other index
           dropEntityById(entities, targetEntity.id);
 
           dropEntityById(entities, draggedEntity.id);
 
-          createDefaultGameObject(name, { ...targetEntity.position }).then(
-            nodes.push
-          );
+          createDefaultGameObject(name, targetEntity.position).then((x) => {
+            console.log("pushing", name, targetEntity.position, x);
+            nodes.push(x);
+          });
         }
       });
     } else {

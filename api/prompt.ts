@@ -51,6 +51,21 @@ export async function GET(request: Request) {
   }
 }
 
+export async function promptProps(label: string): Promise<Database["public"]["Tables"]["entity_properties"]["Row"][] | null> {
+  const {data } = await supabase.from("entity_properties").select().eq("entity_name", label)
+
+  if (data) return data
+  
+  const ideas = await run (label, generateComponentIdeasPrompt)
+
+  if(!ideas) return []
+
+  const output = await run (ideas, selectComponentIdeasPrompt)
+  if (!output) return []
+
+  console.log("output", output)
+}
+
 export async function promptEmoji(label: string): Promise<string | null> {
   const { data } =
     (await supabase.from("combos").select("emojis").eq("res_name1", label)) ||
@@ -108,7 +123,7 @@ export async function prompt(name1: string, name2: string): Promise<string> {
   if (supabase) {
     const { error } = await supabase
       ?.from("combos")
-      .insert({ name1: n1, name2: n2, res_name1: r1 });
+      .insert({ name1: n1, name2: n2, res_name1: r1, res_name2: res_name1 });
     if (error) {
       console.log("insert failed", error);
     }
@@ -403,6 +418,181 @@ Question>Camel|Priest|?
 Answer>Camel|Priest|Caravan
 
 ONLY RESPOND WITH A SINGLE RECIPE THAT MATCHES THE PROMPT!!!`;
+
+
+const selectComponentIdeasPrompt = `
+### Facts:
+
+You are a game designer, and we are assigning game objects properties, or components, in an ECS system that allow them to live and act in our 2D game world.
+
+We currently have the following properties we can assign to game objects:
+
+- \`movementPattern\` dictates how the game object moves.
+  Fields are the following -- name: 'meander' |'snakeUpwards' | 'farmerBackAndForth';
+  - meander: moves one direction for a while, may pause for a while, then moves in another direction. Used with e.g. a cow in a field.
+  - snakeUpwards: moves in sine wave like shape upwards, repeatedly. Used with e.g. smoke from a fire
+  - farmerBackAndForth: moves in a back and forth motion with an ever downward direction like a farmer would move, sowing seeds into his plot of land.
+- \`emits\` defines what and how often the game object "emits" some other game object. Fields are the following -- object: string; frequencyMs: number;
+- \`disappears\` defines the duration until a game object is removed from the scene. Fields are the following -- timeLeftMs: number;
+
+Additionally, multiple components can compose together to create new ideas in our system. For example, a meat game object could be assigned the following pair of properties to "transform it" into spoiled meat:
+
+emits[object=spoiled meat, frequencyMs=10000] disappears[timeLeftMs=10000]
+
+or a kitten could grow up into a cat in the following manner:
+
+emits[object=cat, frequencyMs=120000] disappears[timeLeftMs=120000]
+
+You're welcome to use this transform concept or any other ideas regarding similar compositions of components.
+
+### Your Task:
+
+You will be provided with behaviors and properties of an entity that seem to map well to the aforementioned game behaviors. This prompt is trying to trick you - many of the suggested ideas will NOT map well to the game. Use your best judgement to select between 0 and 3 game behaviors which you are certain make sense as game properties, and output them in the custom format used under "// Your output"
+
+// My input
+A [cow] is known to:
+
+- walk in a field
+- eat grass
+- poop
+- produce milk
+- have calves
+- be playful
+
+'walk in a field' moves the cow around, and could be a \`movementPattern\`.
+
+'poop' is the cow producing or emitting poop, and could be an \`emits\`.
+
+'produce milk' is the cow producing milk, and could be an \`emits\`.
+
+'have calves' is the cow giving birth and creating a new cow, and could be an \`emits\`.
+// Your output
+"cow> movementPattern[name=meander] emits[object=milk,frequencyMs=5000] emits[object=poop,frequencyMs=10000]
+
+// My input
+{input}
+// Your output
+`
+
+const generateComponentIdeasPrompt = `
+### Facts:
+
+You are a game designer, and we are assigning game objects properties, or components, in an ECS system that allow them to live and act in our 2D game world.
+
+We currently have the following properties we can assign to game objects:
+
+- \`movementPattern\` dictates how the game object moves.
+  Fields are the following -- name: 'meander' |'snakeUpwards' | 'farmerBackAndForth';
+  - meander: moves one direction for a while, may pause for a while, then moves in another direction. Used with e.g. a cow in a field.
+  - snakeUpwards: moves in sine wave like shape upwards, repeatedly. Used with e.g. smoke from a fire
+  - farmerBackAndForth: moves in a back and forth motion with an ever downward direction like a farmer would move, sowing seeds into his plot of land.
+- \`emits\` defines what and how often the game object "emits" some other game object. Fields are the following -- object: string; frequencyMs: number;
+- \`disappears\` defines the duration until a game object is removed from the scene. Fields are the following -- timeLeftMs: number;
+
+Additionally, multiple components can compose together to create new ideas in our system. For example, a meat game object could be assigned the following pair of properties to "transform it" into spoiled meat:
+
+emits[object=spoiled meat, frequencyMs=10000] disappears[timeLeftMs=10000]
+
+or a kitten could grow up into a cat in the following manner:
+
+emits[object=cat, frequencyMs=120000] disappears[timeLeftMs=120000]
+
+You're welcome to use this transform concept or any other ideas regarding similar compositions of components.
+
+### Task Overview:
+
+You will be provided with the name of some entity. You will list of 7 behaviors or properties that that entity may be known to exhibit.
+
+Then, you will analyze your list of behaviors or properties, and attempt to find ways to represent these properties using the game properties we have available to us. If a behavior is highly abstract, do not bother to try to represent it in the game.
+
+### Examples
+
+// My input
+Cow
+// Your output
+A [cow] is known to:
+
+- walk in a field
+- eat grass
+- poop
+- produce milk
+- have calves
+- be playful
+
+Logical options are the following:
+
+- walk in a field: movementPattern[name=meander]
+
+- poop: emits[object=poop, frequencyMs=5000] because a cow regularly produces or emits poop.
+
+- produce milk: emits[object=milk,frequencyMs=10000] because a cow regularly produces milk, and could be an \`emits\`.
+
+- have calves: emits[object=calf, frequencyMs=1000000] is the cow giving birth and creating a new cow, and could be an \`emits\`. Cows do not give birth often, so the frequencyMs is set to a high value
+
+// My input
+Soap
+// Your output
+A [Soap] is known to:
+
+- help things get cleaner
+- make people slip and fall
+- be rectangular
+- be made of lard
+- create a foamy lather when used
+- clean someone's face and skin
+- be used up after enough usage in the shower
+
+Logical options are the following:
+
+- be used up after enough usage in the shower: This doesn't seem to make sense as a game property. Soap won't disappear on its own, it needs to be used by something to eventually make it disappear.
+
+- create a foamy lather when used: emits[object=bubbles,frequencyMs=10000] could make sense, though usually the bubbles happen during use of the soap, and not when the soap is completely inert
+
+- help things get cleaner: this doesn't seem to directly map to any game properties
+
+// My input
+Coffee Bean
+// Your output
+A [Coffee Bean] is known to:
+
+- get roasted and ground to prepare a cup of coffee
+- smell really good
+- be planted to grow a coffee tree
+
+Logical options are the following:
+
+- be planted to grow a coffee tree: emits[object=tree, frequencyMs=30000] disappears[timeLeftMs=30000] could work as this represents the coffee bean transforming or growing into a tree
+- smell really good: this doesn't seem like it maps to our existing game components
+- get roasted and ground to prepare a cup of coffee: this doesn't seem like it maps to our existing game components
+
+// My input
+Ray of sun
+// Your output
+A [Ray of sun] is known to:
+
+Cause shadows
+Enable photosynthesis in plants
+Fade over time
+Illuminate objects
+Sparkle on water
+Logical options are the following:
+
+Cause shadows: This could be represented by a visual effect rather than a direct property in the ECS. However, if shadows are objects, it might be something like emits[object=shadow, frequencyMs=1000] where the frequency and existence are conditional on the light source's position. But because our game engine does not support this right now, there is no clear mapping.
+
+Enable photosynthesis in plants: This is another indirect effect and does not clearly map to our game components.
+
+Fade over time: disappears[timeLeftMs=20000] could represent the ray of sun slowly disappearing as a ray of sun is usually temporary.
+
+Illuminate objects: This effect is more of a visual rendering effect than something directly modeled in ECS, akin to causing shadows. It does not map well to our game components.
+
+Sparkle on water: emits[object=sparkle, frequencyMs=2000] could simulate the visual sparkles seen on water surfaces under sunlight, indicating a periodic visual effect.
+
+### Your task
+
+// My input
+{entity_name}
+// Your output
+`
 
 export type Json =
   | string

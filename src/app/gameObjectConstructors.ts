@@ -1,9 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import {
-  ComponentDictionary,
-  GameObject,
-  PositionComponent,
-} from "./App";
+import { ComponentDictionary, GameObject, PositionComponent } from "./App";
 import {
   createAoePattern,
   createMovementPattern,
@@ -11,6 +7,7 @@ import {
 import conveyor from "./systems/aoePattern/conveyor";
 import { SupabaseClient, createClient } from "@supabase/supabase-js";
 import { Database, supaSelectMany, supaSelectOne } from "../lib/supabase";
+import { capitalizeFirstLetter } from "@/utils/string";
 
 const supabase: SupabaseClient<Database> = createClient(
   import.meta.env.VITE_SUPABASE_URL || "",
@@ -40,9 +37,9 @@ export const deserializeGameObject = async (data: string) => {
   const position = baseEntity.position || defaultPosition;
 
   const entity =
-    baseEntity.name !== "tractor"
+    baseEntity.identifier !== "tractor"
       ? await createDefaultGameObject(
-          baseEntity.name,
+          baseEntity.identifier,
           position,
           movementPattern
         )
@@ -69,7 +66,12 @@ export const createDefaultGameObject = async (
     // NOTE: Must be old fn syntax for the this to work
     isCombining: false,
     position,
-    name,
+    name: name
+      .replaceAll("_", " ")
+      .split(" ")
+      .map(capitalizeFirstLetter)
+      .join(" "),
+    identifier: name
   };
   const combo = await supaSelectOne(supabase, "combos", [["res_name1", name]]);
 
@@ -86,7 +88,7 @@ export const createDefaultGameObject = async (
       .map(({ name, config }) => [name, config]) ?? [];
   const props = Object.fromEntries(entries);
 
-  const newEntity = { ...entity, ...{ emoji }, ...props };
+  const newEntity = { ...entity, ...{ emoji: emoji || "?" }, ...props };
 
   // Check each component that needs to be able to serialize and load itself
   // gameObject.

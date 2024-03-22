@@ -81,6 +81,7 @@ export interface GameObject extends ComponentDictionary {
   name: string;
   emoji: string;
   serialize: () => string;
+  identifier: string;
 }
 
 export interface EntitiesPayload {

@@ -1,5 +1,4 @@
 import axios from "axios";
-import { capitalizeFirstLetter } from "../utils/string";
 
 type Result = { name: string; emoji: string };
 
@@ -9,7 +8,7 @@ export async function combine(
   name1: string,
   name2: string
 ): Promise<Result | null> {
-  console.log("combining", name1, name2);
+  
 
   const [n1, n2] = [name1, name2].sort()
 
@@ -19,6 +18,7 @@ export async function combine(
   const url = `${host}/api/prompt?name1=${n1}&name2=${n2}`;
 
   if (!resCache.has(url)) {
+    console.log("combining", name1, name2);
     return await axios
       .get(url)
       .then(function (response) {
@@ -27,15 +27,7 @@ export async function combine(
         const res = response?.data;
         const [name, emoji] = res || [];
 
-        const result = {
-          name: name
-            .replaceAll("_", " ")
-            .split(" ")
-            .map(capitalizeFirstLetter)
-            .join(" "),
-          emoji,
-        };
-
+        const result = {name, emoji}
         if (resCache.size < 100) resCache.set(url, result);
         return result;
       })
