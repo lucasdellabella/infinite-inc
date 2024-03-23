@@ -14,7 +14,9 @@ const handleAutoCombine = () => {
     timeSinceLastCombine = 0;
     const { nodes } = entities.gameObjects || [];
     const { counts } = entities || {};
-    const combineMap: Map<string, GameObject> = new Map();
+    const combineMap: Map<string, GameObject[]> = new Map();
+
+    let combining = false;
 
     for (let i = 0; i < nodes.length; i++) {
       const draggedEntity = nodes[i];
@@ -28,33 +30,24 @@ const handleAutoCombine = () => {
         `${x - (x % MAX_DISTANCE)}_${y - (y % MAX_DISTANCE)}`;
       const positionString = hash(draggedEntity.position);
       if (combineMap.has(positionString)) {
-        const targetEntity = combineMap.get(positionString);
+        const [targetEntity] = combineMap.get(positionString) || [];
         if (
           targetEntity &&
           targetEntity.isActive &&
-          targetEntity.autoCombines?.isCombinable
+          targetEntity.autoCombines?.isCombinable &&
+          !combining
         ) {
           targetEntity.isActive = false;
           draggedEntity.isActive = false;
           targetEntity.isCombining = true;
           draggedEntity.isCombining = true;
+          combining = true;
 
           combine(draggedEntity.name, targetEntity.name).then((data) => {
             const { name, emoji, props } = data || {};
 
             if (name && emoji && nodes && targetEntity.position) {
               //ensures the splice doesnt move the other index
-              dropEntityById(entities, targetEntity.id);
-              dropEntityById(entities, draggedEntity.id);
-              nodes
-                .filter(
-                  ({ position }) =>
-                    position && hash(position) === positionString
-                )
-                .forEach(({ id: entityId }) =>
-                  dropEntityById(entities, entityId)
-                );
-
               createDefaultGameObject(
                 name,
                 targetEntity.position,
@@ -72,14 +65,30 @@ const handleAutoCombine = () => {
               draggedEntity.isCombining = false;
             }
           });
-        } else {
-          draggedEntity.isActive = true;
         }
       } else {
-        combineMap.set(positionString, draggedEntity);
+        draggedEntity.isActive = true;
+      }
+
+      if (combineMap.has(positionString)) {
+        combineMap.get(positionString)?.push(draggedEntity);
+      } else {
+        combineMap.set(positionString, [draggedEntity]);
       }
     }
 
+    if (combining) {
+      const iter = combineMap.entries();
+      let result = iter.next();
+      while (!result.done) {
+        const [, gameObjects] = result.value;
+        if (gameObjects.length > 1)
+          gameObjects
+            .filter((x) => x.isActive && x.autoCombines?.isCombinable)
+            .forEach((x) => dropEntityById(entities, x.id));
+        result = iter.next();
+      }
+    }
     return entities;
   };
 };

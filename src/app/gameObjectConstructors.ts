@@ -9,6 +9,7 @@ import { SupabaseClient, createClient } from "@supabase/supabase-js";
 import { Database, supaSelectMany, supaSelectOne } from "../lib/supabase";
 import { capitalizeFirstLetter } from "@/utils/string";
 import { selectRandomElement } from "@/utils/array";
+import { combine } from "@/lib/httpClient";
 
 const supabase: SupabaseClient<Database> = createClient(
   import.meta.env.VITE_SUPABASE_URL || "",
@@ -83,6 +84,10 @@ export const createDefaultGameObject = async (
 
   const { emojis: emoji } =
     (combo as Database["public"]["Tables"]["combos"]["Row"]) || {};
+  
+  if (!emoji) {
+    await combine(name)
+  }
 
   const propRows = (await supaSelectMany(supabase, "entity_properties", [
     ["entity_name", name],

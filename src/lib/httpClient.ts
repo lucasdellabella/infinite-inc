@@ -4,15 +4,14 @@ type Result = { name: string; emoji: string; props: any[] };
 
 const resCache = new Map<string, Promise<Result | null>>();
 
-export async function combine(name1: string, name2: string) {
+export async function combine(name1: string, name2?: string) {
+  const [n1, n2] = [name1, name2].sort();
+
+  const host =
+    process.env.NODE_ENV === "development" ? "http://localhost:3000" : "";
+
+  const url = `${host}/api/prompt?name1=${n1}&name2=${n2 || ""}`;
   try {
-    const [n1, n2] = [name1, name2].sort();
-
-    const host =
-      process.env.NODE_ENV === "development" ? "http://localhost:3000" : "";
-
-    const url = `${host}/api/prompt?name1=${n1}&name2=${n2}`;
-
     if (!resCache.has(url)) {
       console.log("combining", name1, name2);
       const p = axios
@@ -41,6 +40,7 @@ export async function combine(name1: string, name2: string) {
     }
   } catch (e) {
     console.log("too slow!", name1, name2);
+    resCache.delete(url);
     return null;
   }
 }
