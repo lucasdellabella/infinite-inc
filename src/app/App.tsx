@@ -80,7 +80,7 @@ export interface ComponentDictionary {
   draggable?: DraggableComponent;
   movementPattern?: MovementPatternComponent;
   velocity?: VelocityComponent;
-  emits?: EmitsComponent[];
+  emits?: EmitsComponent;
   disappears?: DisappearsComponent;
   isActive?: IsActiveComponent;
   isCombining?: IsCombiningComponent;

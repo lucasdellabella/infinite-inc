@@ -8,6 +8,7 @@ import conveyor from "./systems/aoePattern/conveyor";
 import { SupabaseClient, createClient } from "@supabase/supabase-js";
 import { Database, supaSelectMany, supaSelectOne } from "../lib/supabase";
 import { capitalizeFirstLetter } from "@/utils/string";
+import { selectRandomElement } from "@/utils/array";
 
 const supabase: SupabaseClient<Database> = createClient(
   import.meta.env.VITE_SUPABASE_URL || "",
@@ -112,6 +113,9 @@ export const createDefaultGameObject = async (
     },
     {} as { [k: string]: unknown[] | unknown }
   );
+
+  if(props["emits"])
+    props["emits"] = selectRandomElement(props["emits"] as unknown[], entity.id)
 
   const newEntity = {
     ...entity,

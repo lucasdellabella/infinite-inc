@@ -19,9 +19,9 @@ export const handleEmits = (
   const { nodes } = entities.gameObjects || {};
   entities.gameObjects?.nodes?.forEach((node) => {
     const { emits, isActive } = node;
-    if (!emits || !isActive || emits.length === 0) return;
+    if (!emits || !isActive ) return;
+      const emit = emits
 
-    emits.forEach((emit) => {
       emit.timeLeftMs = (emit.timeLeftMs || emit.frequencyMs) - time.delta;
       if (emit.timeLeftMs <= 0) {
         const { object, frequencyMs } = emit;
@@ -42,7 +42,6 @@ export const handleEmits = (
 
         emit.timeLeftMs = frequencyMs;
       }
-    });
   });
 
   return entities;

@@ -12,6 +12,7 @@
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",
     "@supabase/supabase-js": "^2.39.7",
+    "@types/seedrandom": "^3.0.8",
     "axios": "^1.6.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
@@ -20,6 +21,7 @@
     "openai": "^4.28.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "seedrandom": "^3.0.5",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^9.0.1"
