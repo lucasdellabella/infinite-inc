@@ -5,14 +5,15 @@ import { dropEntityById, safePush } from "@/utils/entities";
 import { createDefaultGameObject } from "../gameObjectConstructors";
 
 const handleAutoCombine = () => {
+  const MAX_DISTANCE = 20;
   const TEN_SECONDS = 10000;
   let timeSinceLastCombine = 0;
   return (entities: EntitiesPayload, { time }: SystemArgs<any>) => {
     timeSinceLastCombine += time.delta;
     if (timeSinceLastCombine < TEN_SECONDS) return entities;
     timeSinceLastCombine = 0;
-    const { nodes} = entities.gameObjects || [];
-    const {counts} = entities || {}
+    const { nodes } = entities.gameObjects || [];
+    const { counts } = entities || {};
     const combineMap: Map<string, GameObject> = new Map();
 
     for (let i = 0; i < nodes.length; i++) {
@@ -24,7 +25,7 @@ const handleAutoCombine = () => {
       )
         continue;
       const { x, y } = draggedEntity.position;
-      const hash = `${x - (x % 10)}_${y - (y % 10)}`;
+      const hash = `${x - (x % MAX_DISTANCE)}_${y - (y % MAX_DISTANCE)}`;
       if (combineMap.has(hash)) {
         const targetEntity = combineMap.get(hash);
         if (
@@ -53,7 +54,7 @@ const handleAutoCombine = () => {
                 props
               ).then((x) => {
                 console.log("auto pushing", name, targetEntity.position, x);
-                
+
                 safePush(nodes, counts, { ...x, ...props });
               });
             } else {
