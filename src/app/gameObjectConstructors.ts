@@ -51,11 +51,12 @@ export const deserializeGameObject = async (data: string) => {
 };
 
 export const createDefaultGameObject = async (
-  name: string,
+  nameOpt: string | undefined,
   position: PositionComponent,
   movementPatternClosureState?: string | number | boolean | object | undefined,
   genProps?: Database["public"]["Tables"]["entity_properties"]["Row"][]
 ) => {
+  const name = nameOpt || "unknown"
   const entity = {
     velocity: {
       vx: 0,

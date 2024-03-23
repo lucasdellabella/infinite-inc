@@ -13,6 +13,7 @@ export const createMovementPattern = (
       return durdle();
     case "meander":
       return meander();
+    case "farmer__back_and_forth":
     case "farmer_back_and_forth":
       return farmerBackAndForth();
     case "snake_upwards":
