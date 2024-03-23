@@ -67,6 +67,9 @@ export const createDefaultGameObject = async (
     isActive: true,
     // NOTE: Must be old fn syntax for the this to work
     isCombining: false,
+    autoCombines: {
+      isCombinable: name !== "farmer"
+    },
     position,
     name: name
       .replaceAll("_", " ")

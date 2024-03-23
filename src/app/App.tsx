@@ -27,9 +27,16 @@ import { TrashIcon } from "lucide-react";
 import { handleActive } from "./systems/handleActive";
 import { WrenchIcon } from "lucide-react";
 import { handleAoePattern } from "./systems/handleAoePattern";
+import handleAutoCombine from "./systems/handleAutoCombine";
+import { Counts, countGameObjects, safePush } from "@/utils/entities";
 
 export type MovementPatternComponent = {
-  name: "durdle" | "snake_upwards" | "farmer_back_and_forth" | "meander" | "farmer__back_and_forth";
+  name:
+    | "durdle"
+    | "snake_upwards"
+    | "farmer_back_and_forth"
+    | "meander"
+    | "farmer__back_and_forth";
   update: (time: Time, entity: GameObject) => void;
   getState: () => object;
   setState: (data: object) => void;
@@ -48,6 +55,10 @@ export type EmitsComponent = {
 
 export type DisappearsComponent = {
   timeLeftMs: number;
+};
+
+export type AutoCombineComponent = {
+  isCombinable: boolean;
 };
 
 export type DraggableComponent = { isBeingDragged: boolean };
@@ -74,6 +85,7 @@ export interface ComponentDictionary {
   isActive?: IsActiveComponent;
   isCombining?: IsCombiningComponent;
   aoePattern?: AoePatternComponent;
+  autoCombines?: AutoCombineComponent;
 }
 
 export interface GameObject extends ComponentDictionary {
@@ -89,6 +101,7 @@ export interface EntitiesPayload {
     nodes: GameObject[];
     renderer: ({ nodes }: { nodes: GameObject[] }) => JSX.Element;
   };
+  counts: Counts;
 }
 
 function App() {
@@ -97,20 +110,24 @@ function App() {
     height: window.innerHeight,
   });
   const [nodes] = useState<GameObject[]>(initialData);
+  const [counts, setCounts] = useState<Counts>({});
   useEffect(() => {
     async function c() {
+      console.log("loading from local storage");
       const rawState = localStorage.getItem("gameState");
       if (rawState) {
         const gameState = rawState ? JSON.parse(rawState) : null;
         const entities: GameObject[] = await Promise.all(
           gameState.map(deserializeGameObject)
         );
+
+        setCounts(countGameObjects(entities));
         nodes.length = 0;
-        entities.forEach((e) => nodes.push(e));
+        entities.forEach((e) => safePush(nodes, counts, e));
       }
     }
     c();
-  }, [nodes]);
+  }, []);
 
   return (
     <GameEngine
@@ -132,9 +149,11 @@ function App() {
         handleOutOfBounds,
         handleAoePattern,
         localStorageIntervalSaveSystem,
+        handleAutoCombine,
       ]}
       entities={{
         gameObjects: { nodes: nodes, renderer: Nodes },
+        counts: counts,
       }}
       className="relative bg-blue-50"
     >
@@ -142,7 +161,9 @@ function App() {
         <Button
           size="lg"
           onClick={async () => {
-            nodes.push(
+            safePush(
+              nodes,
+              counts,
               await createFire({
                 x: randInt(50, screen.width - 50),
                 y: screen.height * (4 / 5),
@@ -156,7 +177,9 @@ function App() {
           className="border"
           size="lg"
           onClick={async () => {
-            nodes.push(
+            safePush(
+              nodes,
+              counts,
               await createCow({
                 x: randInt(50, screen.width - 200),
                 y: randInt(50, screen.height - 200),
@@ -170,7 +193,9 @@ function App() {
           className="border"
           size="lg"
           onClick={async () => {
-            nodes.push(
+            safePush(
+              nodes,
+              counts,
               await createFarmer({
                 x: randInt(50, screen.width - 200),
                 y: randInt(50, screen.height - 400),
@@ -184,7 +209,9 @@ function App() {
           className="border"
           size="lg"
           onClick={async () => {
-            nodes.push(
+            safePush(
+              nodes,
+              counts,
               await createTractor({
                 x: randInt(50, screen.width - 200),
                 y: randInt(50, screen.height - 400),
@@ -199,13 +226,18 @@ function App() {
           size="lg"
           onClick={() => {
             nodes.length = 0;
+            setCounts({})
           }}
         >
           Wipe board
           <TrashIcon className="ml-2 w-5 h-5" />
         </Button>
         {process.env.NODE_ENV === "development" && (
-          <Button disabled className="border bg-red-500" size="lg">
+          <Button
+            onClick={() => console.log("counts", counts)}
+            className="border bg-red-500"
+            size="lg"
+          >
             Development mode
             <WrenchIcon className="ml-2 w-5 h-5" />
           </Button>

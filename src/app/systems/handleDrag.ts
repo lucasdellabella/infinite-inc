@@ -1,4 +1,4 @@
-import { dropEntityById } from "@/utils/entities";
+import { dropEntityById, safePush } from "@/utils/entities";
 import { combine } from "../../lib/httpClient";
 import { EntitiesPayload } from "../App";
 import { createDefaultGameObject } from "../gameObjectConstructors";
@@ -62,6 +62,7 @@ export const handleDrag = (() => {
     entities: EntitiesPayload,
     draggedEntityIndex: number
   ) => {
+    const {counts} = entities || {}
     const { nodes } = entities.gameObjects || {};
     const draggedEntity = nodes[draggedEntityIndex];
     if (!draggedEntity) return;
@@ -123,7 +124,7 @@ export const handleDrag = (() => {
             props
           ).then((x) => {
             console.log("pushing", name, targetEntity.position, x);
-            nodes.push({...x, ...props});
+            safePush(nodes, counts,{...x, ...props});
           });
         }
       });

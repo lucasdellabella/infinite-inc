@@ -2,12 +2,9 @@ import axios from "axios";
 
 type Result = { name: string; emoji: string; props: any[] };
 
-const resCache = new Map<string, Result>();
+const resCache = new Map<string, Promise<Result | null>>();
 
-export async function combine(
-  name1: string,
-  name2: string
-): Promise<Result | null> {
+export async function combine(name1: string, name2: string) {
   try {
     const [n1, n2] = [name1, name2].sort();
 
@@ -18,7 +15,7 @@ export async function combine(
 
     if (!resCache.has(url)) {
       console.log("combining", name1, name2);
-      return await axios
+      const p = axios
         .get(url)
         .then(function (response) {
           // handle success
@@ -27,7 +24,6 @@ export async function combine(
           const [name, emoji, props] = res || [];
 
           const result = { name, emoji, props };
-          if (resCache.size < 100) resCache.set(url, result);
           return result;
         })
         .catch(function (error) {
@@ -35,6 +31,8 @@ export async function combine(
           console.log(error);
           return null;
         });
+      if (resCache.size < 100) resCache.set(url, p);
+      return p;
     } else {
       return resCache.get(url) || null;
     }
