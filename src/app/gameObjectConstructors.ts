@@ -1,5 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
-import { ComponentDictionary, GameObject, MovementPatternComponent, PositionComponent } from "./App";
+import {
+  ComponentDictionary,
+  GameObject,
+  MovementPatternComponent,
+  PositionComponent,
+} from "./App";
 import {
   createAoePattern,
   createMovementPattern,
@@ -13,7 +18,7 @@ import { combine } from "@/lib/httpClient";
 
 const supabase: SupabaseClient<Database> = createClient(
   import.meta.env.VITE_SUPABASE_URL || "",
-  import.meta.env.VITE_SUPABASE_ANON_KEY || "" 
+  import.meta.env.VITE_SUPABASE_ANON_KEY || ""
 );
 
 type ComponentDictionaryKeys = {
@@ -58,7 +63,7 @@ export const createDefaultGameObject = async (
   movementPatternClosureState?: string | number | boolean | object | undefined,
   genProps?: Database["public"]["Tables"]["entity_properties"]["Row"][]
 ) => {
-  const name = nameOpt || "unknown"
+  const name = nameOpt || "unknown";
   const entity = {
     velocity: {
       vx: 0,
@@ -70,7 +75,7 @@ export const createDefaultGameObject = async (
     // NOTE: Must be old fn syntax for the this to work
     isCombining: false,
     autoCombines: {
-      isCombinable: name !== "farmer"
+      isCombinable: name !== "farmer",
     },
     position,
     name: name
@@ -80,23 +85,27 @@ export const createDefaultGameObject = async (
       .join(" "),
     identifier: name,
   };
-  const combo = await supaSelectOne(supabase, "combos", [["res_name1", name]]);
+  const emojis = await supaSelectOne(supabase, "entity_emojis", [
+    ["res_name1", name],
+  ]);
 
   const { emojis: emoji } =
-    (combo as Database["public"]["Tables"]["combos"]["Row"]) || {};
-  
-  if (!emoji) {
-    await combine(name)
-  }
+    (emojis as Database["public"]["Views"]["entity_emojis"]["Row"]) || {};
 
   const propRows = (await supaSelectMany(supabase, "entity_properties", [
     ["entity_name", name],
   ])) as { data: unknown };
 
+  
+
   const allProps: Database["public"]["Tables"]["entity_properties"]["Row"][] = [
     ...(genProps || []),
     ...(propRows?.data as Database["public"]["Tables"]["entity_properties"]["Row"][]),
   ];
+
+  if (!emoji || allProps.length === 0) {
+    await combine(name);
+  }
   const props = allProps.reduce(
     (
       accumulator: { [x: string]: any },
@@ -119,8 +128,11 @@ export const createDefaultGameObject = async (
     {} as { [k: string]: unknown[] | unknown }
   );
 
-  if(props["emits"])
-    props["emits"] = selectRandomElement(props["emits"] as unknown[], entity.id)
+  if (props["emits"])
+    props["emits"] = selectRandomElement(
+      props["emits"] as unknown[],
+      entity.id
+    );
 
   const newEntity = {
     ...entity,
@@ -128,7 +140,7 @@ export const createDefaultGameObject = async (
     ...props,
   } as GameObject;
 
-  if (genProps) console.log("new gusy", newEntity);
+  if (genProps) console.log("new entity props", newEntity);
 
   // Check each component that needs to be able to serialize and load itself
   // gameObject.
@@ -136,7 +148,9 @@ export const createDefaultGameObject = async (
     const { name: movementPatternName } = newEntity.movementPattern;
     const newMp = createMovementPattern(movementPatternName);
     if (newMp) {
-      newEntity.movementPattern = createMovementPattern(movementPatternName) as MovementPatternComponent;
+      newEntity.movementPattern = createMovementPattern(
+        movementPatternName
+      ) as MovementPatternComponent;
       if (newEntity.movementPattern && movementPatternClosureState)
         newEntity.movementPattern.setState(
           movementPatternClosureState as object

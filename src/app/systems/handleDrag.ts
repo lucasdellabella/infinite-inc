@@ -62,7 +62,7 @@ export const handleDrag = (() => {
     entities: EntitiesPayload,
     draggedEntityIndex: number
   ) => {
-    const {counts} = entities || {}
+    const { counts } = entities || {};
     const { nodes } = entities.gameObjects || {};
     const draggedEntity = nodes[draggedEntityIndex];
     if (!draggedEntity) return;
@@ -120,11 +120,17 @@ export const handleDrag = (() => {
             props
           ).then((x) => {
             console.log("pushing", name, targetEntity.position, x);
-            safePush(nodes, counts,{...x, ...props});
+            safePush(nodes, counts, { ...x, ...props });
+            dropEntityById(entities, targetEntity.id);
+            dropEntityById(entities, draggedEntity.id);
           });
+        } else {
+          draggedEntity.isActive = true;
+          draggedEntity.draggable = { isBeingDragged: false };
+          targetEntity.isActive = true;
+          draggedEntity.isCombining = false;
+          targetEntity.isCombining = false;
         }
-        dropEntityById(entities, targetEntity.id);
-        dropEntityById(entities, draggedEntity.id);
       });
     } else {
       draggedEntity.isActive = true;
