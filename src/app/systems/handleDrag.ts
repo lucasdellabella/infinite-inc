@@ -113,10 +113,6 @@ export const handleDrag = (() => {
 
         if (name && emoji && targetEntity.position && nodes) {
           //ensures the splice doesnt move the other index
-          dropEntityById(entities, targetEntity.id);
-
-          dropEntityById(entities, draggedEntity.id);
-
           createDefaultGameObject(
             name,
             targetEntity.position,
@@ -127,6 +123,8 @@ export const handleDrag = (() => {
             safePush(nodes, counts,{...x, ...props});
           });
         }
+        dropEntityById(entities, targetEntity.id);
+        dropEntityById(entities, draggedEntity.id);
       });
     } else {
       draggedEntity.isActive = true;
