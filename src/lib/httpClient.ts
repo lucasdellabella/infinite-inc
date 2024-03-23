@@ -34,7 +34,7 @@ export async function combine(name1: string, name2: string) {
       if (resCache.size < 100) resCache.set(url, p);
       return p;
     } else {
-      return resCache.get(url) || null;
+      return JSON.parse(JSON.stringify(resCache.get(url) || null));
     }
   } catch (e) {
     console.log("too slow!", name1, name2);

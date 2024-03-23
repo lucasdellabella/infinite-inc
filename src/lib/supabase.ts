@@ -9,7 +9,7 @@ export function supaSelectMany(
 ) {
   const hash = `${tableName}:${cols.map((x) => x.join(",")).join("|")}`;
 
-  if (memCache.has(hash)) return memCache.get(hash);
+  if (memCache.has(hash)) return JSON.parse(JSON.stringify(memCache.get(hash)));
 
   console.log("querying supa", hash);
   let q = supabase.from(tableName).select();
