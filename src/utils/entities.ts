@@ -27,7 +27,6 @@ export function safePush(
   newGameObject: GameObject
 ) {
   const { identifier } = newGameObject;
-  console.log(gameObjects, counts, newGameObject)
   if (counts[identifier] && counts[identifier] >= MAX_COUNT) return;
   else {
     counts[identifier] = (counts[identifier] || 0) + 1;
