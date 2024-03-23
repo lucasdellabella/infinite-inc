@@ -1,10 +1,10 @@
-import {  EntitiesPayload, GameObject } from "@/app/App";
+import { EntitiesPayload, GameObject } from "@/app/App";
 
 export function dropEntityById(entities: EntitiesPayload, targetId: string) {
   const index = entities.gameObjects?.nodes?.findIndex(
     ({ id }) => targetId === id
   );
-  entities.gameObjects?.nodes?.splice(index, 1);
+  safeDelete(entities.gameObjects.nodes, entities.counts, index);
 }
 export type Counts = { [key: string]: number };
 export function countGameObjects(gameObjects: GameObject[]): {
@@ -32,4 +32,15 @@ export function safePush(
     counts[identifier] = (counts[identifier] || 0) + 1;
     gameObjects.push(newGameObject);
   }
+}
+
+export function safeDelete(
+  gameObjects: GameObject[],
+  counts: Counts,
+  index: number
+) {
+  const { identifier } = gameObjects[index];
+  counts[identifier] =
+    counts[identifier] && counts[identifier] > 0 ? counts[identifier] - 1 : 0;
+  gameObjects.splice(index, 1);
 }
