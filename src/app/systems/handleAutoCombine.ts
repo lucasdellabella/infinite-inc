@@ -6,7 +6,7 @@ import { createDefaultGameObject } from "../gameObjectConstructors";
 
 const handleAutoCombine = () => {
   const MAX_DISTANCE = 20;
-  const TEN_SECONDS = 10000;
+  const TEN_SECONDS = 30000;
   let timeSinceLastCombine = 0;
   return (entities: EntitiesPayload, { time }: SystemArgs<any>) => {
     timeSinceLastCombine += time.delta;
