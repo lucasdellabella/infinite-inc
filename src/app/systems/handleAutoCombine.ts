@@ -72,7 +72,6 @@ const handleAutoCombine = () => {
               draggedEntity.isCombining = false;
             }
           });
-          break;
         } else {
           draggedEntity.isActive = true;
         }
