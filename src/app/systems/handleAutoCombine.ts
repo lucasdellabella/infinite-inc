@@ -24,10 +24,11 @@ const handleAutoCombine = () => {
         !draggedEntity.position
       )
         continue;
-      const { x, y } = draggedEntity.position;
-      const hash = `${x - (x % MAX_DISTANCE)}_${y - (y % MAX_DISTANCE)}`;
-      if (combineMap.has(hash)) {
-        const targetEntity = combineMap.get(hash);
+      const hash = ({ x, y }: { x: number; y: number }): string =>
+        `${x - (x % MAX_DISTANCE)}_${y - (y % MAX_DISTANCE)}`;
+      const positionString = hash(draggedEntity.position);
+      if (combineMap.has(positionString)) {
+        const targetEntity = combineMap.get(positionString);
         if (
           targetEntity &&
           targetEntity.isActive &&
@@ -44,8 +45,15 @@ const handleAutoCombine = () => {
             if (name && emoji && nodes && targetEntity.position) {
               //ensures the splice doesnt move the other index
               dropEntityById(entities, targetEntity.id);
-
               dropEntityById(entities, draggedEntity.id);
+              nodes
+                .filter(
+                  ({ position }) =>
+                    position && hash(position) === positionString
+                )
+                .forEach(({ id: entityId }) =>
+                  dropEntityById(entities, entityId)
+                );
 
               createDefaultGameObject(
                 name,
@@ -69,7 +77,7 @@ const handleAutoCombine = () => {
           draggedEntity.isActive = true;
         }
       } else {
-        combineMap.set(hash, draggedEntity);
+        combineMap.set(positionString, draggedEntity);
       }
     }
 
