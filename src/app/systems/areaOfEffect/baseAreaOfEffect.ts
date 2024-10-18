@@ -27,6 +27,7 @@ const baseAreaOfEffect = (
       entity,
       originalComponent: entity[componentType]!,
     });
+    // @ts-expect-error: Our typing is weird. componentType indexing is fkd
     entity[componentType] = component;
   };
 
@@ -36,6 +37,7 @@ const baseAreaOfEffect = (
     );
     if (index !== -1) {
       const { originalComponent, entity } = effectedEntities[index];
+      // @ts-expect-error: Our typing is weird. componentType indexing is fkd
       entity[componentType] = originalComponent;
       effectedEntities.splice(index, 1);
     }

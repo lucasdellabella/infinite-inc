@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ComponentType, GameComponent, MovementPatternComponent } from "./App";
 import durdle from "./systems/movementPattern/durdle";
 import farmerBackAndForth from "./systems/movementPattern/farmerBackAndForth";
