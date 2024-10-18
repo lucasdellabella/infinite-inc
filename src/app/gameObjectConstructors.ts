@@ -193,8 +193,10 @@ export const createTractor = async (position: PositionComponent) => {
   return {
     ...tractor,
     areaOfEffect: baseAreaOfEffect(
-      "disappears",
-      createComponent("disappears", { timeLeftMs: 5000 }),
+      // "disappears",
+      // createComponent("disappears", { timeLeftMs: 5000 }),
+      "velocity",
+      createComponent("velocity", { vx: 0, vy: 20 }),
       "rectangle",
       { x: 200, y: 200 }
     ),

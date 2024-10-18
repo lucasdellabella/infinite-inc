@@ -13,7 +13,9 @@ const Node = ({
   position,
   isCombining,
   areaOfEffect,
+  velocity,
 }: GameObject) => {
+  const isMovingRight = velocity && velocity.vx > 0;
   const [isHovered, setIsHovered] = useState(false);
 
   const handleHoverStart = () => {
@@ -79,7 +81,12 @@ const Node = ({
           onTouchStart={handleHoverStart}
           onTouchEnd={handleHoverEnd}
         >
-          <span className="text-3xl cursor-pointer pointer-events-none">
+          <span
+            className={cn(
+              "text-3xl cursor-pointer pointer-events-none",
+              isMovingRight ? "-scale-x-100" : ""
+            )}
+          >
             {emoji}
           </span>
         </div>
@@ -109,7 +116,12 @@ const Node = ({
             "absolute z-[-1] top-0 left-0 opacity-60 bg-white border border-slate-900 pointer-events-none w-full h-full rounded-md cursor-pointer transition-all"
           )}
         ></div>
-        <span className="text-3xl cursor-pointer pointer-events-none">
+        <span
+          className={cn(
+            "text-3xl cursor-pointer pointer-events-none",
+            isMovingRight ? "-scale-x-100" : ""
+          )}
+        >
           {emoji}
         </span>
         <span className={cn("text-xl ml-2 transition-all pointer-events-none")}>

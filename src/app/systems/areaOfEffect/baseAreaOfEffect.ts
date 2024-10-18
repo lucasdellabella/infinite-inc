@@ -21,12 +21,14 @@ const baseAreaOfEffect = (
   // store original values here for when its de-applied
 
   const effectedEntities: TrackedEntity[] = [];
-  const trackNewEffectedEntity = (entity: GameObject) =>
+  const trackNewEffectedEntity = (entity: GameObject) => {
     effectedEntities.push({
       id: entity.id,
       entity,
       originalComponent: entity[componentType]!,
     });
+    entity[componentType] = component;
+  };
 
   const untrackEffectedEntity = (entity: GameObject) => {
     const index = effectedEntities.findIndex(
@@ -50,7 +52,6 @@ const baseAreaOfEffect = (
         return;
       }
 
-      recipient[componentType] = component;
       trackNewEffectedEntity(recipient);
     },
     removeEffect: (recipient: GameObject) => {
