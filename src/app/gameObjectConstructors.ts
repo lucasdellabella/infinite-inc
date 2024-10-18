@@ -1,4 +1,9 @@
+import { combine } from "@/lib/httpClient";
+import { selectRandomElement } from "@/utils/array";
+import { capitalizeFirstLetter } from "@/utils/string";
+import { SupabaseClient, createClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
+import { Database, supaSelectMany, supaSelectOne } from "../lib/supabase";
 import {
   ComponentDictionary,
   GameObject,
@@ -6,15 +11,10 @@ import {
   PositionComponent,
 } from "./App";
 import {
-  createAoePattern,
+  createComponent,
   createMovementPattern,
 } from "./componentConstructors";
-import conveyor from "./systems/aoePattern/conveyor";
-import { SupabaseClient, createClient } from "@supabase/supabase-js";
-import { Database, supaSelectMany, supaSelectOne } from "../lib/supabase";
-import { capitalizeFirstLetter } from "@/utils/string";
-import { selectRandomElement } from "@/utils/array";
-import { combine } from "@/lib/httpClient";
+import baseAreaOfEffect from "./systems/areaOfEffect/baseAreaOfEffect";
 
 const supabase: SupabaseClient<Database> = createClient(
   import.meta.env.VITE_SUPABASE_URL || "",
@@ -96,8 +96,6 @@ export const createDefaultGameObject = async (
     ["entity_name", name],
   ])) as { data: unknown };
 
-  
-
   const allProps: Database["public"]["Tables"]["entity_properties"]["Row"][] = [
     ...(genProps || []),
     ...(propRows?.data as Database["public"]["Tables"]["entity_properties"]["Row"][]),
@@ -158,9 +156,16 @@ export const createDefaultGameObject = async (
     }
   }
 
-  if (newEntity.aoePattern) {
-    newEntity.aoePattern = createAoePattern(newEntity.aoePattern.name);
-  }
+  // if (newEntity.areaOfEffect) {
+  //   newEntity.areaOfEffect = baseAreaOfEffect(
+  //     newEntity.areaOfEffect.componentType,
+  //     // newEntity.areaOfEffect.component,
+  //     constructNewComponent(),
+  //     newEntity.areaOfEffect.shape,
+  //     newEntity.areaOfEffect.dims,
+  //     newEntity.areaOfEffect
+  //   );
+  // }
 
   return {
     ...newEntity,
@@ -187,7 +192,12 @@ export const createTractor = async (position: PositionComponent) => {
   const tractor = await createDefaultGameObject("tractor", position);
   return {
     ...tractor,
-    aoePattern: conveyor(),
+    areaOfEffect: baseAreaOfEffect(
+      "disappears",
+      createComponent("disappears", { timeLeftMs: 5000 }),
+      "rectangle",
+      { x: 200, y: 200 }
+    ),
   };
 };
 

@@ -19,29 +19,29 @@ export const handleEmits = (
   const { nodes } = entities.gameObjects || {};
   entities.gameObjects?.nodes?.forEach((node) => {
     const { emits, isActive } = node;
-    if (!emits || !isActive ) return;
-      const emit = emits
+    if (!emits || !isActive) return;
+    const emit = emits;
 
-      emit.timeLeftMs = (emit.timeLeftMs || emit.frequencyMs) - time.delta;
-      if (emit.timeLeftMs <= 0) {
-        const { object, frequencyMs } = emit;
-        const { position } = node;
-        const emitPosition = getRandomPosition(position?.x, position?.y);
-        const pushGameObjectIfExists = (newObject: GameObject) => {
-          if (newObject) {
-            safePush(nodes, counts, newObject);
-          }
-        };
-        if (object === "tractor") {
-          createTractor(emitPosition).then(pushGameObjectIfExists);
-        } else {
-          createDefaultGameObject(object, emitPosition).then(
-            pushGameObjectIfExists
-          );
+    emit.timeLeftMs = (emit.timeLeftMs || emit.frequencyMs) - time.delta;
+    if (emit.timeLeftMs <= 0) {
+      const { object, frequencyMs } = emit;
+      const { position } = node;
+      const emitPosition = getRandomPosition(position?.x, position?.y);
+      const pushGameObjectIfExists = (newObject: GameObject) => {
+        if (newObject) {
+          safePush(nodes, counts, newObject);
         }
-
-        emit.timeLeftMs = frequencyMs;
+      };
+      if (object === "tractor") {
+        createTractor(emitPosition).then(pushGameObjectIfExists);
+      } else {
+        createDefaultGameObject(object, emitPosition).then(
+          pushGameObjectIfExists
+        );
       }
+
+      emit.timeLeftMs = frequencyMs;
+    }
   });
 
   return entities;

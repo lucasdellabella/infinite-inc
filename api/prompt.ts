@@ -1,6 +1,6 @@
-import OpenAI from "openai";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import querystring from "node:querystring";
+import OpenAI from "openai";
 
 // https://vercel.com/docs/functions/quickstart#create-an-api-route
 

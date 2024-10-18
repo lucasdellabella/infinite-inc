@@ -5,7 +5,7 @@ interface State {
   angle: number;
 }
 
-const snakeUpwards = () => {
+const snakeUpwards = (vy = -100) => {
   const radius = 80;
   let state: State = {
     angle: 0,
@@ -21,7 +21,7 @@ const snakeUpwards = () => {
       if (entity.velocity) {
         state.angle += 3 * percentOfASecond;
         entity.velocity.vx = Math.sin(state.angle) * radius;
-        entity.velocity.vy = -100;
+        entity.velocity.vy = vy;
       }
     },
   };

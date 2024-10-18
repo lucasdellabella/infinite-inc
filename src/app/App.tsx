@@ -8,6 +8,8 @@ import "../index.css";
 import Nodes from "./renderers/Nodes";
 import { handleDrag } from "./systems/handleDrag";
 
+import { Counts, countGameObjects, safePush } from "@/utils/entities";
+import { TrashIcon, WrenchIcon } from "lucide-react";
 import {
   createCow,
   createFarmer,
@@ -16,6 +18,9 @@ import {
   deserializeGameObject,
 } from "./gameObjectConstructors";
 import initialData from "./initialData";
+import { handleActive } from "./systems/handleActive";
+import { handleAreaOfEffect } from "./systems/handleAreaOfEffect";
+import handleAutoCombine from "./systems/handleAutoCombine";
 import { handleDisappears } from "./systems/handleDisappear";
 import { handleEmits } from "./systems/handleEmits";
 import handleMovementPattern from "./systems/handleMovementPattern";
@@ -23,12 +28,6 @@ import handleOutOfBounds from "./systems/handleOutOfBounds";
 import handleVelocity from "./systems/handleVelocity";
 import localStorageIntervalSaveSystem from "./systems/localStorageIntervalSaveSystem";
 import { Time } from "./systems/utils";
-import { TrashIcon } from "lucide-react";
-import { handleActive } from "./systems/handleActive";
-import { WrenchIcon } from "lucide-react";
-import { handleAoePattern } from "./systems/handleAoePattern";
-import handleAutoCombine from "./systems/handleAutoCombine";
-import { Counts, countGameObjects, safePush } from "@/utils/entities";
 
 export type MovementPatternComponent = {
   name:
@@ -69,10 +68,14 @@ export type IsActiveComponent = boolean;
 
 export type IsCombiningComponent = boolean;
 
-export type AoePatternComponent = {
-  name: "conveyor";
+export type AreaOfEffectComponent = {
+  shape: "rectangle" | "ellipse";
+  dims: { x: number; y: number };
+  offset: { x: number; y: number };
+  componentType: keyof ComponentDictionary;
+  component: ComponentDictionary[keyof ComponentDictionary];
   applyEffect: (node: GameObject) => void;
-  removeEffect?: (node: GameObject) => void;
+  removeEffect: (node: GameObject) => void;
 };
 
 export interface ComponentDictionary {
@@ -84,9 +87,15 @@ export interface ComponentDictionary {
   disappears?: DisappearsComponent;
   isActive?: IsActiveComponent;
   isCombining?: IsCombiningComponent;
-  aoePattern?: AoePatternComponent;
+  areaOfEffect?: AreaOfEffectComponent;
   autoCombines?: AutoCombineComponent;
 }
+
+export type ComponentType = keyof ComponentDictionary;
+export type GameComponent = Exclude<
+  ComponentDictionary[ComponentType],
+  undefined
+>;
 
 export interface GameObject extends ComponentDictionary {
   id: string;
@@ -147,7 +156,7 @@ function App() {
         handleMovementPattern,
         handleDisappears,
         handleOutOfBounds,
-        handleAoePattern,
+        handleAreaOfEffect,
         localStorageIntervalSaveSystem,
         handleAutoCombine,
       ]}
@@ -226,7 +235,7 @@ function App() {
           size="lg"
           onClick={() => {
             nodes.length = 0;
-            setCounts({})
+            setCounts({});
           }}
         >
           Wipe board

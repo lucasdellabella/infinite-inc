@@ -51,10 +51,8 @@ function extractClientCoordinates(event: Input): {
 }
 
 export const handleDrag = (() => {
-  let dragOffset = { x: 0, y: 0 };
   let dragEntityId = "";
   const resetDragState = () => {
-    dragOffset = { x: 0, y: 0 };
     dragEntityId = "";
   };
 
@@ -173,11 +171,6 @@ export const handleDrag = (() => {
           !entity.isCombining
         ) {
           entity.draggable.isBeingDragged = true;
-          const { clientX, clientY } = extractClientCoordinates(payload);
-          dragOffset = {
-            x: clientX - target.getBoundingClientRect().left,
-            y: clientY - target.getBoundingClientRect().top,
-          };
         }
       } else if (
         dragEntityId &&
@@ -186,8 +179,8 @@ export const handleDrag = (() => {
         const entity = getEntityWithId(dragEntityId);
         if (entity && entity.draggable && entity.position) {
           const { pageX, pageY } = extractPageCoordinates(payload);
-          entity.position.x = pageX - dragOffset.x;
-          entity.position.y = pageY - dragOffset.y;
+          entity.position.x = pageX;
+          entity.position.y = pageY;
         }
       } else if (
         dragEntityId &&

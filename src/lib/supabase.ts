@@ -1,7 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 
 const memCache: Map<string, Promise<{ data: unknown[] }>> = new Map();
-//TODO clear empty array res from memCache
 export function supaSelectMany(
   supabase: SupabaseClient<Database>,
   tableName: string,
